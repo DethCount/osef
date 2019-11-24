@@ -1,0 +1,2 @@
+class SerieUI extends FunctionUI {
+}
