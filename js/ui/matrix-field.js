@@ -30,7 +30,8 @@ class MatrixFieldUI {
         pointColor,
         normalize,
         arrowAngle,
-        arrowHeight
+        arrowHeight,
+        renderingContextName
     ) {
         this.oid = oid;
         this.space = space;
@@ -73,6 +74,7 @@ class MatrixFieldUI {
         this.normalize = normalize !== false;
         this.arrowAngle = arrowAngle === undefined ? Math.PI / 8 : 1*arrowAngle;
         this.arrowHeight = arrowHeight === undefined ? 0.25 : 1*arrowHeight;
+        this.renderingContextName = renderingContextName || '2d';
 
         this.init();
     }
@@ -98,7 +100,7 @@ class MatrixFieldUI {
         }
 
         if (this.$particlesCanvas && this.$particlesCanvas.length > 0) {
-            this.particlesCtxt = this.$particlesCanvas.get(0).getContext('2d');
+            this.particleRenderer = new Particle2dRenderer(this.$particlesCanvas.get(0).getContext('2d'));
         }
 
         if (false === this.withUpdateBtn) {
@@ -161,24 +163,21 @@ class MatrixFieldUI {
             this.components[component].clear();
         }
 
+        this.clearParticles();
+
         return this;
     }
 
     clearParticles() {
-        if (this.particlesCtxt) {
-            this.particlesCtxt.clearRect(
-                0,
-                0,
-                this.particlesCtxt.canvas.width,
-                this.particlesCtxt.canvas.height
-            );
+        if (this.particleRenderer) {
+            this.particleRenderer.clear();
         }
 
         return this;
     }
 
     isAnimated(checkSpace) {
-        if (this.particlesCtxt && (this.viewState == 'visible' || this.viewState == 'points')) {
+        if (this.particleRenderer && (this.viewState == 'visible' || this.viewState == 'points')) {
             return true;
         }
 
@@ -260,13 +259,6 @@ class MatrixFieldUI {
         this.update();
     }
 
-    preRender(context) {
-        this.clearParticles();
-        if (this.viewState == 'visible' || this.viewState == 'points') {
-            this.renderParticles(context);
-        }
-    }
-
     render(context, prevContext, withParticles) {
         if (this.viewState == 'hidden') {
             this.clear();
@@ -284,6 +276,9 @@ class MatrixFieldUI {
 
         if (undefined === prevContext) {
             this.clear();
+            if (this.viewState == 'visible' || this.viewState == 'points') {
+                this.renderParticles(context);
+            }
         }
 
         for (let idx in this.components) {
@@ -292,7 +287,7 @@ class MatrixFieldUI {
     }
 
     renderParticles(context) {
-        if (!this.particles || !this.particlesCtxt) {
+        if (!this.particles || !this.particleRenderer) {
             return this;
         }
 
@@ -302,7 +297,8 @@ class MatrixFieldUI {
             } else {
                 particle.update(context.time, this.space, this.mf);
             }
-            particle.render(this.particlesCtxt, this.space, context);
+
+            this.particleRenderer.render(particle, this.space, context);
         }
 
         return this;
@@ -315,7 +311,7 @@ class MatrixFieldUI {
 
         for (let particle of this.particles) {
             particle.reset();
-            particle.render(this.particlesCtxt, this.space, context);
+            this.particleRenderer.render(particle, this.space, context);
         }
 
         return this;

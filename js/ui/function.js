@@ -19,7 +19,8 @@ class FunctionUI {
         pointColor,
         normalize,
         arrowAngle,
-        arrowHeight
+        arrowHeight,
+        renderingContextName
     ) {
         this.oid = oid;
         this.space = space;
@@ -53,6 +54,7 @@ class FunctionUI {
         this.normalize = normalize !== false;
         this.arrowAngle = arrowAngle === undefined ? Math.PI / 8 : 1*arrowAngle;
         this.arrowHeight = arrowHeight === undefined ? 0.25 : 1*arrowHeight;
+        this.renderingContextName = renderingContextName || '2d';
 
         this.init();
     }
@@ -95,7 +97,7 @@ class FunctionUI {
             this.$elt.on('click', this.selectors.integrateBtn, this.onIntegrateBtnClick.bind(this));
         }
 
-        this.ctxt = this.$canvas.get(0).getContext('2d');
+        this.renderer = new Function2dRenderer(this);
     }
 
     onUpdateBtnClick(event) {
@@ -151,15 +153,6 @@ class FunctionUI {
             || this.space.transformationObject.isAnimated(false);
     }
 
-    clear(context) {
-        this.ctxt.clearRect(
-            0,
-            0,
-            this.ctxt.canvas.width,
-            this.ctxt.canvas.height
-        );
-    }
-
     isVectorField () {
         if (this.fun instanceof VectorField) {
             return true;
@@ -169,9 +162,15 @@ class FunctionUI {
             && (this.fun.requires('y') || this.fun.requires('dy'));
     }
 
-    preRender(context) {
+    clear() {
+        this.renderer.clear();
     }
 
+    render(context, prevContext) {
+        this.renderer.render(context, prevContext);
+    }
+
+    /*
     render(context, prevContext) {
         if (this.viewState == 'hidden') {
             this.clear();
@@ -359,15 +358,16 @@ class FunctionUI {
 
         return this;
     }
+    */
 
-    resetParticles(space, args) {
-        if (!this.particles || !this.particlesCtxt) {
+    resetParticles(space, context) {
+        if (!this.particles) {
             return this;
         }
 
         for (let particle of this.particles) {
             particle.reset();
-            particle.render(this.particlesCtxt, space, args);
+            this.renderer.renderParticle(particle, context);
         }
 
         return this;

@@ -1,5 +1,19 @@
 class AxisUI {
-    constructor(space, name, $elt, color, selectors, precision, stepsPrecision, lineWidth, markerLength, axisPadding, otherAxisPadding, fontSize, fontFamily) {
+    constructor(
+        space, 
+        name, 
+        $elt, 
+        color, 
+        selectors, 
+        precision, 
+        stepsPrecision, 
+        lineWidth, 
+        markerLength, 
+        axisPadding, 
+        otherAxisPadding, 
+        fontSize, 
+        fontFamily
+    ) {
         this.space = space;
         this.name = name;
         this.$elt = $elt;
@@ -123,6 +137,14 @@ class AxisUI {
     }
 
     render(ctxt, context) {
+        if (ctxt instanceof CanvasRenderingContext2D) {
+            (new Axis2dRenderer(this, ctxt))
+                .render(context);
+        }
+    }
+
+    /*
+    render(ctxt, context) {
         let x = Math.abs(this.axis.basis.x),
             y = Math.abs(this.axis.basis.y);
 
@@ -180,4 +202,5 @@ class AxisUI {
             previousPos = vector.clone();
         });
     }
+    */
 }

@@ -36,37 +36,4 @@ class MatrixField extends VectorField {
 
         return false;
     }
-
-    render(space, previousArgs, args) {
-        for (let component of this.components) {
-            component.renderVector(component.ctxt, space, previousArgs, args);
-        }
-    }
-
-    renderIntegralVectors(space, previousArgs, args) {
-        for (let component of this.components) {
-            component.renderIntegralVector(component.ctxt, space, previousArgs, args);
-        }
-    }
-
-    renderParticles(space, args) {
-        if (!this.particles || !this.particlesCtxt) {
-            return this;
-        }
-
-        for (let particle of this.particles) {
-            particle.update(args.time, space, this);
-            particle.render(this.particlesCtxt, this.space, args);
-        }
-
-        return this;
-    }
-
-    toggleCanvas(toggle) {
-        for (let idx in this.components) {
-            this.components[idx].toggleCanvas(toggle);
-        }
-
-        return this;
-    }
 }

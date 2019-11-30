@@ -1,7 +1,6 @@
 class Serie extends MathFunction {
     constructor(name, equation, rangeName, range, initialValue, color, lineWidth, showPoints, pointWidth, pointColor, normalize, arrowAngle, arrowHeight) {
         super(name, equation, color, lineWidth, showPoints, pointWidth, pointColor, normalize, arrowAngle, arrowHeight);
-
         this.rangeName = rangeName;
         this.range = range;
         this.initialValue = initialValue || 0;

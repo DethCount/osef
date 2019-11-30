@@ -4,7 +4,7 @@ class Particle {
         // console.log('new particle', position, this.pos, velocity, size, color);
         this.initV = this.v = velocity || 0;
         this.size = size instanceof Vector2 ? size : (size === undefined ? new Vector2(1, 1) : new Vector2(size, size));
-        this.color = color;
+        this.color = color || randomColor();
     }
 
     reset() {
@@ -37,27 +37,6 @@ class Particle {
         // console.log(this.pos.clone());
 
         this.v = dpos.clone();
-
-        return this;
-    }
-
-    render(ctxt, space, args) {
-        let margin = this.size.divide(2).round();
-        let pos = space.applyTransformation(space.mergeContextAndVector(args, this.pos));
-        if (pos.isNaV()) {
-            this.reset();
-            return this;
-        }
-
-        if (this.color) {
-            ctxt.fillStyle = this.color;
-        }
-
-        ctxt.fillRect(pos.x - margin.x, pos.y - margin.y, this.size.x, this.size.y);
-
-        if (space.isOutside(this.pos)) {
-            this.reset();
-        }
 
         return this;
     }

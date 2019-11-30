@@ -15,7 +15,8 @@ class SpaceUI {
         serieTemplate,
         vectorFieldTemplate,
         matrixFieldTemplate,
-        matrixFieldVectorFieldTemplate
+        matrixFieldVectorFieldTemplate,
+        renderingContextName
     ) {
         this.oid = oid;
         this.space = space;
@@ -32,6 +33,7 @@ class SpaceUI {
         this.vectorFieldTemplate = vectorFieldTemplate || $('.vector-field-template').html();
         this.matrixFieldTemplate = matrixFieldTemplate || $('.matrix-field-template').html();
         this.matrixFieldVectorFieldTemplate = matrixFieldVectorFieldTemplate || $('.matrix-vector-field-template').html();
+        this.renderingContextName = renderingContextName || '2d';
 
         this.selectors = $.extend(
             {
@@ -82,7 +84,9 @@ class SpaceUI {
                 .appendTo(this.$canvasContainer);
         }
 
-        this.ctxt = this.$canvas.get(0).getContext('2d');
+        if (this.renderingContextName == '2d') {
+            this.renderer = new Space2dRenderer(this);
+        }
 
         this.currentAnimationFrame = undefined;
         this.resize(true, false);
@@ -94,6 +98,18 @@ class SpaceUI {
             .mouseleave((event) => {
                 $('body').off('mousemove', this.onPositionCapture.bind(this));
             });
+    }
+
+    isAnimated() {
+        let animated = false;
+
+        for (var oid in this.objectsUI) {
+            if (!animated && this.objectsUI[oid].isAnimated()) {
+                animated = true;
+            }
+        }
+
+        return animated;
     }
 
     onAddFunctionClick(event) {
@@ -117,8 +133,6 @@ class SpaceUI {
             if (this.objectsUI[oid] instanceof MatrixFieldUI || this.objectsUI[oid] instanceof VectorFieldUI) {
                 this.objectsUI[oid].particles = this.createParticles(this.objectsUI[oid].particlesColor);
             }
-
-            this.objectsUI[oid].preRender(this.currentContext || this.getStartContext());
         }
 
         this.render();
@@ -378,44 +392,14 @@ class SpaceUI {
         }
         this.currentAnimationFrame = undefined;
 
-        this.clear();
-        this.resize(true, false);
+        this.renderer.render(context, animate, animationComponent);
 
-        context = $.extend(this.getStartContext(), this.currentContext || {}, context || {});
-
-
-        var animated = false;
-
-        let prevContext;
-
-        for (var oid in this.objectsUI) {
-            this.objectsUI[oid].preRender(context);
-            if (!animated && this.objectsUI[oid].isAnimated()) {
-                animated = true;
-            }
-        }
-
-        this.space.each(
-            (context) => {
-                for (var oid in this.objectsUI) {
-                    this.objectsUI[oid].render(context, prevContext);
-                }
-                prevContext = $.extend({}, context);
-            },
-            context
-        );
-
-        this.renderBoundaries(context, this.color);
-        for (var component in this.axesUI) {
-            if (component == 'time') continue;
-            this.axesUI[component].render(this.ctxt, context);
-        }
-
-        if (animate !== false && animated && !this.paused) {
+        if (animate !== false && this.isAnimated() && !this.paused) {
             this.currentAnimationFrame = window.requestAnimationFrame(this.next.bind(this, animationComponent || 'time', !this.paused));
         }
     }
 
+/*
     renderBoundaries(context, color) {
         var first = true;
 
@@ -496,6 +480,7 @@ class SpaceUI {
         }
         this.ctxt.stroke();
     }
+    */
 
     play(component) {
         this.paused = false;
@@ -512,7 +497,6 @@ class SpaceUI {
         this.currentContext[component] = this.space.getAxisByName(component).min;
 
         for (let idx in this.objectsUI) {
-            this.objectsUI[idx].preRender(this.currentContext);
             if (!(this.objectsUI[idx] instanceof VectorFieldUI)
                 && !(this.objectsUI[idx] instanceof MatrixFieldUI)
             ) {
@@ -538,10 +522,6 @@ class SpaceUI {
             this.currentContext[component] = prev;
         }
 
-        for (let idx in this.objectsUI) {
-            this.objectsUI[idx].preRender(this.currentContext);
-        }
-
         this.render(this.currentContext);
     }
 
@@ -558,10 +538,6 @@ class SpaceUI {
 
         this.currentContext[component] = next;
 
-        for (let idx in this.objectsUI) {
-            this.objectsUI[idx].preRender(this.currentContext);
-        }
-
         this.render(this.currentContext, undefined, component);
     }
 
@@ -573,10 +549,6 @@ class SpaceUI {
         }
 
         this.currentContext[component] = this.space.getAxisByName(component).max;
-
-        for (let idx in this.objectsUI) {
-            this.objectsUI[idx].preRender(this.currentContext);
-        }
 
         this.render(this.currentContext);
     }

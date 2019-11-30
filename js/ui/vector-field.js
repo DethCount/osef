@@ -26,7 +26,8 @@ class VectorFieldUI {
         pointColor,
         normalize,
         arrowAngle,
-        arrowHeight
+        arrowHeight,
+        renderingContextName
     ) {
         this.oid = oid;
         this.space = space;
@@ -65,6 +66,7 @@ class VectorFieldUI {
         this.normalize = normalize !== false;
         this.arrowAngle = arrowAngle === undefined ? Math.PI / 8 : 1*arrowAngle;
         this.arrowHeight = arrowHeight === undefined ? 0.25 : 1*arrowHeight;
+        this.renderingContextName = renderingContextName || '2d';
 
         this.init();
     }
@@ -89,11 +91,6 @@ class VectorFieldUI {
             this.addFunctionUI(idx);
         }
 
-        this.ctxt = this.$canvas.get(0).getContext('2d');
-        if (this.$particlesCanvas && this.$particlesCanvas.length) {
-            this.particlesCtxt = this.$particlesCanvas.get(0).getContext('2d');
-        }
-
         if (false === this.withUpdateBtn) {
             this.$elt.find(this.selectors.updateBtn).remove();
         } else {
@@ -111,6 +108,13 @@ class VectorFieldUI {
             this.$elt.find(this.selectors.pulseBtn).remove();
         } else {
             this.$elt.on('click', this.selectors.pulseBtn, this.onPulseBtnClick.bind(this));
+        }
+
+        if (this.renderingContextName == '2d') {
+            this.renderer = new VectorField2dRenderer(this);
+            if (this.$particlesCanvas) {
+                this.particleRenderer = new Particle2dRenderer(this.$particlesCanvas.get(0).getContext('2d'));
+            }
         }
     }
 
@@ -218,24 +222,21 @@ class VectorFieldUI {
             this.components[component].clear();
         }
 
+        this.clearParticles();
+
         return this;
     }
 
     clearParticles() {
-        if (this.particlesCtxt) {
-            this.particlesCtxt.clearRect(
-                0,
-                0,
-                this.particlesCtxt.canvas.width,
-                this.particlesCtxt.canvas.height
-            );
+        if (this.particleRenderer) {
+            this.particleRenderer.clear();
         }
 
         return this;
     }
 
     isAnimated(checkSpace) {
-        if (this.particlesCtxt && (this.viewState == 'visible' || this.viewState == 'points')) {
+        if (this.particleRenderer && (this.viewState == 'visible' || this.viewState == 'points')) {
             return true;
         }
 
@@ -248,13 +249,6 @@ class VectorFieldUI {
         return false;
     }
 
-    preRender(context) {
-        this.clearParticles();
-        if (this.viewState == 'visible' || this.viewState == 'points') {
-            this.renderParticles(context);
-        }
-    }
-
     render(context, prevContext, withParticles) {
         if (this.viewState == 'hidden') {
             this.clear();
@@ -262,8 +256,10 @@ class VectorFieldUI {
         }
 
         if (undefined === context) {
+            let first = true;
             this.space.each((context) => {
-                this.render(context, prevContext);
+                this.render(context, prevContext, first);
+                first = false;
                 prevContext = $.extend({}, context);
             });
 
@@ -274,105 +270,13 @@ class VectorFieldUI {
             this.clear();
         }
 
-        let vector = this.vf.evaluate(context);
-
-        if (vector instanceof Vector2 && (vector.isNaV() || (vector.x == 0 && vector.y == 0))) {
-            return this;
-        }
-
-        if (this.normalize) {
-            vector = vector.normalize();
-        }
-
-        let point = new Vector2(context.x, context.y);
-        let point1 = this.space.applyTransformation(this.space.mergeContextAndVector(context, point));
-        let point2 = this.space.applyTransformation(this.space.mergeContextAndVector(context, point.add(vector)));
-        let vector2 = this.space.applyTransformation(this.space.mergeContextAndVector(context, vector));
-
-
-        this.ctxt.save();
-        this.ctxt.strokeStyle = this.color;
-
-        if (this.lineWidth) {
-            this.ctxt.lineWidth = this.lineWidth;
-        }
-
-        this.ctxt.beginPath();
-        this.ctxt.moveTo(point1.x, point1.y);
-        this.ctxt.lineTo(point2.x, point2.y);
-        this.ctxt.stroke();
-
-        let l = vector.length();
-
-        let cosTheta = Math.cos(this.arrowAngle),
-            sinTheta = Math.sin(this.arrowAngle);
-
-        let vector3 = this.space.applyTransformation(
-            this.space.mergeContextAndVector(
-                context,
-                point
-                    .add(vector)
-                    .sub(
-                        (new Matrix2(new Vector2(cosTheta, sinTheta), new Vector2(-sinTheta, cosTheta)))
-                            .multiply(vector)
-                            .multiply(this.arrowHeight)
-                    )
-            )
-        );
-
-        this.ctxt.beginPath();
-        this.ctxt.moveTo(point2.x, point2.y);
-        this.ctxt.lineTo(vector3.x, vector3.y);
-        this.ctxt.stroke();
-
-        let vector4 = this.space.applyTransformation(
-            this.space.mergeContextAndVector(
-                context,
-                point
-                    .add(vector)
-                    .sub(
-                        (new Matrix2(new Vector2(cosTheta, -sinTheta), new Vector2(sinTheta, cosTheta)))
-                            .multiply(vector)
-                            .multiply(this.arrowHeight)
-                    )
-            )
-        );
-
-        this.ctxt.beginPath();
-        this.ctxt.moveTo(point2.x, point2.y);
-        this.ctxt.lineTo(vector4.x, vector4.y);
-        this.ctxt.stroke();
-        this.ctxt.restore();
-
-        return this;
-    }
-
-    renderParticles(context) {
-        if (!this.particles || !this.particlesCtxt) {
-            return this;
-        }
-
-        for (let particle of this.particles) {
-            if (this.space.getAxisByName('time').min == context.time) {
-                particle.reset();
-            } else {
-                particle.update(context.time, this.space, this.vf);
-            }
-            particle.render(this.particlesCtxt, this.space, context);
-        }
+        this.renderer.render(context, prevContext, withParticles);
 
         return this;
     }
 
     resetParticles(context) {
-        if (!this.particles || !this.particlesCtxt) {
-            return this;
-        }
-
-        for (let particle of this.particles) {
-            particle.reset();
-            particle.render(this.particlesCtxt, this.space, context);
-        }
+        this.renderer.resetParticles(context);
 
         return this;
     }
