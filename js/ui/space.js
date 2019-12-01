@@ -91,7 +91,7 @@ class SpaceUI {
         this.currentAnimationFrame = undefined;
         this.resize(true, false);
 
-        $('window')
+        $(window)
             .on('resize', this.resize.bind(this, true, true));
 
         this.$canvas
@@ -378,7 +378,10 @@ class SpaceUI {
         this.space.parent.resize();
 
         if (render !== false) {
-            this.currentAnimationFrame = window.requestAnimationFrame(this.render.bind(this));
+            if (this.resizeAnimationFrame) {
+                window.cancelAnimationFrame(this.resizeAnimationFrame);
+            }
+            this.resizeAnimationFrame = window.requestAnimationFrame(this.render.bind(this));
         }
     }
 
@@ -519,12 +522,13 @@ class SpaceUI {
             let $elt = $('<tr class="pos-varying"></tr>');
             $table.append($elt);
 
-            $elt.append($(
-                '<td class="object-legend" style="background-color: '
-                + (this.objectsUI.hasOwnProperty(oid) ? this.objectsUI[oid].color : randomColor())
-                + ';"></td>'
-            )
-                .text(this.objects[oid].name));
+            let $td = $('<td></td>')
+                .addClass('object-legend')
+                .css('background-color', this.objectsUI[oid].color)
+                .text(this.objects[oid].name);
+
+            $elt.append($td);
+
             let text = '';
             text = val instanceof Matrix2
                 ? '(' + val.x.x + ', ' + val.x.y + ')' + "\n"
