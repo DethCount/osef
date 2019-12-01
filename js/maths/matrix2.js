@@ -11,6 +11,10 @@ class Matrix2 {
         );
     }
 
+    isNaM() {
+        return this.x.isNaV() || this.y.isNaV();
+    }
+
     add(tensor) {
         if (!isNaN(tensor)) {
             return new Matrix2(

@@ -4,7 +4,6 @@ $(() => {
             .attr('width', $canvasContainer.innerWidth())
             .attr('height', $canvasContainer.innerHeight()),
         canvas = $canvas.get(0),
-        ctxt = canvas.getContext('2d'),
         spaceColor = randomColor(),
         canvasSpace = new CanvasSpace(canvas);
 
@@ -86,7 +85,7 @@ $(() => {
         1,
         workSpace,
         $('#form'),
-        $('.canvas-container'),
+        $canvasContainer,
         $canvas,
         spaceColor,
         objects,
@@ -97,10 +96,4 @@ $(() => {
     window.workSpaceUI = workSpaceUI;
 
     workSpaceUI.render();
-
-    $(window).on('resize', () => {
-        workSpaceUI.resize(true, false);
-        canvasSpace.resize();
-        workSpaceUI.render();
-    });
 });

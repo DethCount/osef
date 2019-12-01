@@ -91,6 +91,9 @@ class SpaceUI {
         this.currentAnimationFrame = undefined;
         this.resize(true, false);
 
+        $('window')
+            .on('resize', this.resize.bind(this, true, true));
+
         this.$canvas
             .mouseenter((event) => {
                 $('body').on('mousemove', this.onPositionCapture.bind(this));
@@ -372,6 +375,8 @@ class SpaceUI {
             });
         }
 
+        this.space.parent.resize();
+
         if (render !== false) {
             this.currentAnimationFrame = window.requestAnimationFrame(this.render.bind(this));
         }
@@ -398,89 +403,6 @@ class SpaceUI {
             this.currentAnimationFrame = window.requestAnimationFrame(this.next.bind(this, animationComponent || 'time', !this.paused));
         }
     }
-
-/*
-    renderBoundaries(context, color) {
-        var first = true;
-
-        if (color) {
-            this.ctxt.strokeStyle = color;
-        }
-
-        var factor = 100;
-
-        this.ctxt.beginPath();
-        context.x = this.space.getAxisByName('x').min;
-        for (context.y = this.space.getAxisByName('y').min; context.y <= this.space.getAxisByName('y').max; context.y += this.space.getAxisByName('y').getIncrement()/factor) {
-            var pos = this.space.applyTransformation(context, true, false);
-            if (pos.isNaV()) {
-                continue;
-            }
-
-            if (first) {
-                this.ctxt.moveTo(pos.x, pos.y);
-                first = false;
-                continue;
-            }
-            this.ctxt.lineTo(pos.x, pos.y);
-        }
-        this.ctxt.stroke();
-
-        this.ctxt.beginPath();
-        context.x = this.space.getAxisByName('x').max;
-        for (context.y = this.space.getAxisByName('y').min; context.y <= this.space.getAxisByName('y').max; context.y += this.space.getAxisByName('y').getIncrement()/factor) {
-            var pos = this.space.applyTransformation(context, true, false);
-            if (pos.isNaV()) {
-                continue;
-            }
-
-            if (first) {
-                this.ctxt.moveTo(pos.x, pos.y);
-                first = false;
-                continue;
-            }
-
-            this.ctxt.lineTo(pos.x, pos.y);
-        }
-        this.ctxt.stroke();
-
-        this.ctxt.beginPath();
-        context.y = this.space.getAxisByName('y').min;
-        for (context.x = this.space.getAxisByName('x').min; context.x <= this.space.getAxisByName('x').max; context.x += this.space.getAxisByName('x').getIncrement()/factor) {
-            var pos = this.space.applyTransformation(context, true, false);
-            if (pos.isNaV()) {
-                continue;
-            }
-
-            if (first) {
-                this.ctxt.moveTo(pos.x, pos.y);
-                first = false;
-                continue;
-            }
-
-            this.ctxt.lineTo(pos.x, pos.y);
-        }
-        this.ctxt.stroke();
-
-        this.ctxt.beginPath();
-        context.y = this.space.getAxisByName('y').max;
-        for (context.x = this.space.getAxisByName('x').min; context.x <= this.space.getAxisByName('x').max; context.x += this.space.getAxisByName('x').getIncrement()/factor) {
-            var pos = this.space.applyTransformation(context, true, false);
-            if (pos.isNaV()) {
-                continue;
-            }
-
-            if (first) {
-                this.ctxt.moveTo(pos.x, pos.y);
-                first = false;
-                continue;
-            }
-
-            this.ctxt.lineTo(pos.x, pos.y);
-        }
-        this.ctxt.stroke();
-    }
-    */
 
     play(component) {
         this.paused = false;
@@ -580,6 +502,19 @@ class SpaceUI {
             let val = this.objects[oid] instanceof Pulse
                 ? this.objects[oid].evaluate(this.space, context)
                 : this.objects[oid].evaluate(context);
+
+            if (this.objectsUI[oid].viewState == 'hidden' 
+                || val === undefined 
+                || (val instanceof Vector2 
+                    ? val.isNaV() 
+                    : (val instanceof Matrix2 
+                        ? val.isNaM()
+                        : isNaN(val)
+                    )
+                )
+            ) {
+                continue;
+            }
 
             let $elt = $('<tr class="pos-varying"></tr>');
             $table.append($elt);
