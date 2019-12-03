@@ -2,6 +2,7 @@
     <script src="js/jquery-3.2.1.slim.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/util.js"></script>
     <script src="js/maths/vector2.js"></script>
     <script src="js/maths/matrix2.js"></script>
     <script src="js/maths/math-range.js"></script>
@@ -10,10 +11,22 @@
     <script src="js/maths/pulse.js"></script>
     <script src="js/maths/serie.js"></script>
     <script src="js/maths/space.js"></script>
+    <script src="js/maths/particle.js"></script>
     <script src="js/maths/vector-field.js"></script>
     <script src="js/maths/matrix-field.js"></script>
-    <script src="js/maths/particle.js"></script>
     <script src="js/maths/canvas-space.js"></script>
+    <script src="js/ui/renderer/2d/axis.js"></script>
+    <script src="js/ui/renderer/2d/function.js"></script>
+    <script src="js/ui/renderer/2d/particle.js"></script>
+    <script src="js/ui/renderer/2d/vector-field.js"></script>
+    <script src="js/ui/renderer/2d/space.js"></script>
+    <script src="js/ui/axis.js"></script>
+    <script src="js/ui/function.js"></script>
+    <script src="js/ui/serie.js"></script>
+    <script src="js/ui/vector-field.js"></script>
+    <script src="js/ui/matrix-field.js"></script>
+    <script src="js/ui/space-navigation.js"></script>
+    <script src="js/ui/space.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/font-awesome.css" />
 </head>
@@ -43,8 +56,6 @@
 
         .left-menu {
             padding: 5px;
-            max-height: 100%;
-            overflow: scroll;
         }
 
         .form-row {
@@ -60,6 +71,10 @@
             background-color: #585F61;
         }
 
+        .canvas-container {
+            position: relative;
+        }
+
         .canvas-container canvas {
             position: absolute;
             top: 0px;
@@ -73,344 +88,285 @@
             background-color: white;
         }
 
-        .left-menu .form-group, .function-input-group, .vector-field-xy {
-            margin-bottom: 0.2rem;
+        .left-menu .form-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .vector-fields-container .vector-field {
+            margin-bottom: 0;
+        }
+
+        .left-menu .btn-secondary {
+            border-color: transparent;
+        }
+
+        .form-group.vector-field .hide-btn, .form-group.matrix-field .hide-btn {
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+            margin-right: -1px;
+        }
+
+        .form-group.vector-field .pulse-btn, .form-group.matrix-field .pulse-btn {
+            border-radius: unset;
+            margin-right: -1px;
+        }
+
+        .form-group.vector-field .update-btn, .form-group.matrix-field .update-btn {
+            border-top-left-radius: unset;
+            border-bottom-left-radius: unset;
         }
 
         .left-menu label {
             margin-bottom: 0px;
         }
 
-        .play-bar {
+        .range {
             margin: 15px auto !important;
             max-width: 215px;
         }
 
-        .add-bar {
-            margin: 15px auto !important;
-            max-width: 372px;
+        .space-navigation form {
+            width: 100%;
+            margin-block-end: unset;
+        }
+
+        .space-navigation .btn {
+            margin: 0 3px;
         }
 
         .object-legend, label {
             color: white;
             text-shadow: 1px 1px 2px #000000;
         }
+
+        .components-container {
+            padding-left: 0px !important;
+            padding-right: 0px !important;
+        }
+
+        .components-container .function-input-group {
+            margin-bottom: 0px;
+        }
+
+        .form-row>.col.vector-fields-container {
+            padding-left: 0;
+            padding-right: 0;
+        }
     </style>
     <div class="container-fluid fill-height">
         <div class="row fill-height">
             <div class="col-sm-3 dark left-menu">
-              <form id="form">
-                <div class="function-template hidden">
-                    <div
-                        class="input-group function-input-group"
-                        data-function-i="{{i}}"
-                        data-function-name="{{name}}"
-                    >
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <input
-                            type="text"
-                            class="form-control function-equation"
-                            name="function-equation"
-                            id="function-equation-{{i}}"
-                            placeholder=""
-                            value="{{equation}}"
-                        />
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary update-function-btn" type="button">Go!</button>
-                        </span>
+                <form id="form">
+                    <div class="function-template hidden">
+                        <div
+                            class="form-group input-group function-input-group"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <input
+                                type="text"
+                                class="form-control equation-input"
+                                name="function-equation"
+                                id="function-equation-{{oid}}"
+                                placeholder=""
+                                value="{{equation}}"
+                            />
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="serie-template hidden">
-                    <div
-                        class="input-group serie-input-group"
-                        data-serie-i="{{i}}"
-                        data-serie-name="{{name}}"
-                    >
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <input
-                            type="text"
-                            class="form-control serie-equation"
-                            name="serie-equation"
-                            id="serie-equation-{{i}}"
-                            placeholder=""
-                            value="{{equation}}"
-                        />
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary update-serie-btn" type="button">Go!</button>
-                        </span>
+                    <div class="serie-template hidden">
+                        <div
+                            class="form-group input-group serie-input-group"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <input
+                                type="text"
+                                class="form-control serie-equation"
+                                name="serie-equation"
+                                id="serie-equation-{{oid}}"
+                                placeholder=""
+                                value="{{equation}}"
+                            />
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="vector-field-xy-template hidden">
-                    <div
-                        class="form-group vector-field-xy"
-                        data-vector-field-i="{{i}}"
-                        data-vector-field-name="{{name}}"
-                    >
+                    <div class="vector-field-template hidden">
+                        <div
+                            class="form-group vector-field"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <div class="form-row">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                                <div class="col components-container">
+                                </div>
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="matrix-field-template hidden">
+                        <div
+                            class="form-group matrix-field"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <div class="form-row">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                                <div class="col vector-fields-container">
+                                </div>
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="matrix-vector-field-template hidden">
+                        <div
+                            class="form-group vector-field"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <div class="components-container">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="axis-template hidden">
                         <div class="form-row">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye" aria-hidden="true"></i>
-                            </button>
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                            <div class="col">
-                                <label for="vector-field-xy-{{i}}-x">Vx = </label>
-                                <input type="text" name="vector-field-xy-{{i}}-x" class="form-control vector-field-xy-x" value="{{Vx}}"></input>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <label for="{{oid}}-{{name}}-min">Min {{name}}</label>
+                                        <input
+                                            type="text"
+                                            class="form-control axis-min-input"
+                                            name="{{name}}-min"
+                                            id="{{oid}}-{{name}}-min"
+                                            placeholder="min {{name}}"
+                                            value="{{min}}"
+                                        />
+                                    </div>
+                                    <div class="col">
+                                        <label for="{{oid}}-{{name}}-steps">Steps</label>
+                                        <input
+                                            type="text"
+                                            class="form-control axis-steps-input"
+                                            name="{{name}}-steps"
+                                            id="{{oid}}-{{name}}-steps"
+                                            placeholder="nb of steps on {{name}}"
+                                            value="{{steps}}"
+                                        />
+                                    </div>
+                                    <div class="col">
+                                        <label for="{{oid}}-{{name}}-max">Max {{name}}</label>
+                                        <input
+                                            type="text"
+                                            class="form-control axis-max-input"
+                                            name="{{name}}-max"
+                                            id="{{oid}}-{{name}}-max"
+                                            placeholder="max {{name}}"
+                                            value="{{max}}"
+                                        />
+                                    </div>
+                                    <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                                </div>
                             </div>
-                            <div class="col">
-                                <label for="vector-field-xy-{{i}}-y">Vy = </label>
-                                <input type="text" name="vector-field-xy-{{i}}-y" class="form-control vector-field-xy-y" value="{{Vy}}"></input>
+                            <div class="form-group range">
+                                <button type="button" class="btn btn-primary prev-btn">
+                                    <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary next-btn">
+                                    <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary play-btn">
+                                    <i class="fa fa-play" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary stop-btn">
+                                    <i class="fa fa-stop" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary last-btn">
+                                    <i class="fa fa-fast-forward" aria-hidden="true"></i>
+                                </button>
                             </div>
-                            <button class="btn btn-secondary update-vector-field-xy-btn" type="button">Go!</button>
                         </div>
                     </div>
-                </div>
-                <div class="matrix-field-xy-template hidden">
-                    <div
-                        class="form-group matrix-field-xy"
-                        data-matrix-field-i="{{i}}"
-                        data-matrix-field-name="{{name}}"
-                    >
-                        <div class="form-row">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye" aria-hidden="true"></i>
-                            </button>
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                            <button class="btn btn-secondary update-matrix-field-xy-btn" type="button">Go!</button>
-                        </div>
-                        <div class="form-row vector-field-xy">
-                            <div class="col">
-                                <label for="vector-field-xy-{{i}}-x">xx = </label>
-                                <input type="text" name="vector-field-xy-{{i}}-x" class="form-control vector-field-xx" value="{{MxVx}}"></input>
-                            </div>
-                            <div class="col">
-                                <label for="vector-field-xy-{{i}}-y">xy = </label>
-                                <input type="text" name="vector-field-xy-{{i}}-y" class="form-control vector-field-xy" value="{{MxVy}}"></input>
-                            </div>
-                        </div>
-                        <div class="form-row vector-field-xy">
-                            <div class="col">
-                                <label for="vector-field-xy-{{i}}-x">yx = </label>
-                                <input type="text" name="vector-field-xy-{{i}}-x" class="form-control vector-field-yx" value="{{MyVx}}"></input>
-                            </div>
-                            <div class="col">
-                                <label for="vector-field-xy-{{i}}-y">yy = </label>
-                                <input type="text" name="vector-field-xy-{{i}}-y" class="form-control vector-field-yy" value="{{MyVy}}"></input>
-                            </div>
-                        </div>
+                    <div class="objects-container"><!-- objects here --></div>
+                    <div class="form-group axes-container">
                     </div>
-                </div>
-                <div class="axis-template hidden">
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="{{name}}-min">Min {{name}}</label>
-                            <input
-                                type="text"
-                                class="form-control {{name}}-min"
-                                name="{{name}}-min"
-                                id="{{name}}-min"
-                                placeholder="min {{name}}"
-                                value="{{min}}"
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="{{name}}-steps">Steps</label>
-                            <input
-                                type="text"
-                                class="form-control {{name}}-steps"
-                                name="{{name}}-steps"
-                                id="{{name}}-steps"
-                                placeholder="nb of steps on {{name}}"
-                                value="{{steps}}"
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="{{name}}-max">Max {{name}}</label>
-                            <input
-                                type="text"
-                                class="form-control {{name}}-max"
-                                name="{{name}}-max"
-                                id="{{name}}-max"
-                                placeholder="max {{name}}"
-                                value="{{max}}"
-                            />
-                        </div>
-                        <button class="btn btn-secondary {{name}}-update-btn" type="button">Go!</button>
+                    <div class="form-group capture">
+                        <table class="table table-striped data">
+                            <thead>
+                                <th>Variable</th>
+                                <th>Value</th>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="objects-container"><!-- objects here --></div>
-                <div class="form-group add-bar">
-                    <button type="button" class="btn btn-primary add-function-btn">f(time, x, y)</button>
-                    <button type="button" class="btn btn-primary add-serie-btn">f(first, prev, time, x, y)</button>
-                    <button type="button" class="btn btn-primary add-vector-field-xy-btn">V(Vx(time, x, y), Vy(time, x, y))</button>
-                    <button type="button" class="btn btn-primary add-matrix-field-xy-btn">M(Mx(time, x, y), My(time, x, y))</button>
-                </div>
-                <div class="form-group axes-container">
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="function-x-min">Min x</label>
-                            <input
-                                type="text"
-                                class="form-control function-x-min"
-                                name="function-x-min"
-                                id="function-x-min"
-                                placeholder="min x"
-                                value=""
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="function-x-steps">Steps</label>
-                            <input
-                                type="text"
-                                class="form-control function-x-steps"
-                                name="function-x-steps"
-                                id="function-x-steps"
-                                placeholder="nb of steps on x"
-                                value=""
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="function-x-max">Max x</label>
-                            <input
-                                type="text"
-                                class="form-control function-x-max"
-                                name="function-x-max"
-                                id="function-x-max"
-                                placeholder="max x"
-                                value=""
-                            />
-                        </div>
-                        <button class="btn btn-secondary function-x-btn" type="button">Go!</button>
-                    </div>
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="function-y-min">Min y</label>
-                            <input
-                                type="text"
-                                class="form-control function-y-min"
-                                name="function-y-min"
-                                id="function-y-min"
-                                placeholder="min y"
-                                value=""
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="function-y-steps">Steps</label>
-                            <input
-                                type="text"
-                                class="form-control function-y-steps"
-                                name="function-y-steps"
-                                id="function-y-steps"
-                                placeholder="nb of steps on y"
-                                value=""
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="function-y-max">Max y</label>
-                            <input
-                                type="text"
-                                class="form-control function-y-max"
-                                name="function-y-max"
-                                id="function-y-max"
-                                placeholder="max y"
-                                value=""
-                            />
-                        </div>
-                        <button class="btn btn-secondary function-y-btn" type="button">Go!</button>
-                    </div>
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="function-t-min">Min time</label>
-                            <input
-                                type="text"
-                                class="form-control function-t-min"
-                                name="function-t-min"
-                                id="function-t-min"
-                                placeholder="min time"
-                                value=""
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="function-t-steps">Steps</label>
-                            <input
-                                type="text"
-                                class="form-control function-t-steps"
-                                name="function-t-steps"
-                                id="function-t-steps"
-                                placeholder="nb of steps of time"
-                                value=""
-                            />
-                        </div>
-                        <div class="col">
-                            <label for="function-t-max">Max time</label>
-                            <input
-                                type="text"
-                                class="form-control function-t-max"
-                                name="function-t-max"
-                                id="function-t-max"
-                                placeholder="max time"
-                                value=""
-                            />
-                        </div>
-                        <button class="btn btn-secondary function-t-btn" type="button">Go!</button>
-                    </div>
-                </div>
-                <div class="form-group play-bar">
-                    <button type="button" class="btn btn-primary sub-time-btn">
-                        <i class="fa fa-step-backward" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="btn btn-primary add-time-btn">
-                        <i class="fa fa-step-forward" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="btn btn-primary play-btn">
-                        <i class="fa fa-play" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="btn btn-primary stop-btn">
-                        <i class="fa fa-stop" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="btn btn-primary max-time-btn">
-                        <i class="fa fa-fast-forward" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="form-group capture">
-                    <table class="table table-striped data">
-                        <thead>
-                            <th>Variable</th>
-                            <th>Value</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>time</td><td class="time"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-              </form>
+                </form>
             </div>
-            <div class="col-sm-9 nopad canvas-container fill-height">
-                <canvas id="viewer"></canvas>
+            <div class="col-sm-9 nopad fill-height">
+                <nav class="navbar navbar-dark dark space-navigation">
+                    <form class="form-inline">
+                        <button type="button" title="Add a variable" class="btn btn-primary btn-sm add-axis-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <i class="fa fa-usd" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" title="Add a function" class="btn btn-primary btn-sm add-function-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <i class="fa fa-facebook" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" title="Add a serie" class="btn btn-primary btn-sm add-serie-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <i class="fa fa-sort-numeric-asc" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" title="Add a vector field" class="btn btn-primary btn-sm add-vector-field-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <i class="fa fa-hand-o-right" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" title="Add a matrix field" class="btn btn-primary btn-sm add-matrix-field-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <i class="fa fa-th" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </nav>
+                <div class="row canvas-container">
+                    <canvas id="viewer"></canvas>
+                </div>
             </div>
         </div>
     </div>
-    <script src="js/index2.js"></script>
+    <script src="js/index.js"></script>
 </body>
