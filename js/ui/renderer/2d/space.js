@@ -21,7 +21,7 @@ class Space2dRenderer {
 
         context = $.extend(this.spaceUI.getStartContext(), this.spaceUI.currentContext || {}, context || {});
 
-        let prevContext;        
+        let prevContext;
 
         this.spaceUI.space.each(
             (context) => {
