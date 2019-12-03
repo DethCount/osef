@@ -17,7 +17,7 @@ class AxisUI {
         this.space = space;
         this.name = name;
         this.$elt = $elt;
-        this.color = color || 'black';
+        this.color = color || randomColor();
         this.selectors = $.extend(
             {},
             {

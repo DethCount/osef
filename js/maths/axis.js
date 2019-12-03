@@ -3,7 +3,10 @@ class Axis extends MathRange {
         super(min, max, steps);
 
         this.name = name;
-        this.basis = basis.normalize();
+        this.basis = basis ? basis.normalize() : undefined;
+        this.min = undefined === min ? -100 : min;
+        this.max = undefined === max ? 100 : max;
+        this.steps = undefined === steps ? 200 : steps;
         this.color = color || 'black';
         this.precision = precision === undefined ? 6 : 1*precision;
     }

@@ -8,6 +8,7 @@ class SpaceUI {
         color,
         objects,
         selectors,
+        spaceNavUI,
         axisTemplate,
         axesUI,
         objectsUI,
@@ -39,6 +40,9 @@ class SpaceUI {
             {
                 axesContainer: '.axes-container',
                 objectsContainer: '.objects-container',
+                nav: {
+                    bar: '.space-navigation'
+                },
                 addFunctionBtn: '.add-function-btn',
                 addSerieBtn: '.add-serie-btn',
                 addVectorFieldBtn: '.add-vector-field-btn',
@@ -47,6 +51,8 @@ class SpaceUI {
             },
             selectors || {}
         );
+
+        this.spaceNavUI = spaceNavUI || new SpaceNavigationUI(this, $(this.selectors.nav.bar), this.selectors.nav);
 
         this.init();
     }
@@ -64,19 +70,7 @@ class SpaceUI {
             this.addObjectUI(idx);
         }
 
-        this.$elt
-            .find(this.selectors.addFunctionBtn)
-                .click(this.onAddFunctionClick.bind(this))
-            .end()
-            .find(this.selectors.addSerieBtn)
-                .click(this.onAddSerieClick.bind(this))
-            .end()
-            .find(this.selectors.addVectorFieldBtn)
-                .click(this.onAddVectorFieldClick.bind(this))
-            .end()
-            .find(this.selectors.addMatrixFieldBtn)
-                .click(this.onAddMatrixFieldClick.bind(this))
-            .end()
+        this.spaceNavUI.init();
 
         if (undefined === this.$canvas) {
             this.$canvas = $('<canvas></canvas>')
@@ -115,22 +109,6 @@ class SpaceUI {
         return animated;
     }
 
-    onAddFunctionClick(event) {
-        this.addFunctionUI();
-    }
-
-    onAddSerieClick(event) {
-        this.addSerieUI();
-    }
-
-    onAddVectorFieldClick(event) {
-        this.addVectorFieldUI();
-    }
-
-    onAddMatrixFieldClick(event) {
-        this.addMatrixFieldUI();
-    }
-
     onAxisUpdate(event) {
         for (var oid in this.objectsUI) {
             if (this.objectsUI[oid] instanceof MatrixFieldUI || this.objectsUI[oid] instanceof VectorFieldUI) {
@@ -142,6 +120,11 @@ class SpaceUI {
     }
 
     addAxisUI(component) {
+        if (undefined === component || undefined === this.space.getAxisByName(component)) {
+            component = 'var' + this.space.axes.length;
+            this.space.addAxis(component);
+        }
+
         var html = this.axisTemplate
             .replace(/\{\{oid\}\}/ig, this.oid)
             .replace(/\{\{name\}\}/ig, component)
@@ -155,7 +138,7 @@ class SpaceUI {
             .find(this.selectors.axesContainer)
                 .append($elt);
 
-        this.axesUI[component] = (new AxisUI(this.space, component, $elt, randomColor()))
+        this.axesUI[component] = (new AxisUI(this.space, component, $elt))
             .on('update', this.onAxisUpdate.bind(this))
             .on('play', this.play.bind(this, component))
             .on('stop', this.stop.bind(this, component))

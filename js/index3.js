@@ -88,9 +88,7 @@ $(() => {
         $canvasContainer,
         $canvas,
         spaceColor,
-        objects,
-        undefined,
-        $('.axis-template').html()
+        objects
     );
 
     window.workSpaceUI = workSpaceUI;

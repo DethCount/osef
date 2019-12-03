@@ -25,6 +25,7 @@
     <script src="js/ui/serie.js"></script>
     <script src="js/ui/vector-field.js"></script>
     <script src="js/ui/matrix-field.js"></script>
+    <script src="js/ui/space-navigation.js"></script>
     <script src="js/ui/space.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/font-awesome.css" />
@@ -70,6 +71,10 @@
             background-color: #585F61;
         }
 
+        .canvas-container {
+            position: relative;
+        }
+
         .canvas-container canvas {
             position: absolute;
             top: 0px;
@@ -83,8 +88,32 @@
             background-color: white;
         }
 
-        .left-menu .form-group, .function-input-group, .vector-field-xy {
-            margin-bottom: 0.2rem;
+        .left-menu .form-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .vector-fields-container .vector-field {
+            margin-bottom: 0;
+        }
+
+        .left-menu .btn-secondary {
+            border-color: transparent;
+        }
+
+        .form-group.vector-field .hide-btn, .form-group.matrix-field .hide-btn {
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+            margin-right: -1px;
+        }
+
+        .form-group.vector-field .pulse-btn, .form-group.matrix-field .pulse-btn {
+            border-radius: unset;
+            margin-right: -1px;
+        }
+
+        .form-group.vector-field .update-btn, .form-group.matrix-field .update-btn {
+            border-top-left-radius: unset;
+            border-bottom-left-radius: unset;
         }
 
         .left-menu label {
@@ -96,9 +125,13 @@
             max-width: 215px;
         }
 
-        .add-bar {
-            margin: 15px auto !important;
-            max-width: 372px;
+        .space-navigation form {
+            width: 100%;
+            margin-block-end: unset;
+        }
+
+        .space-navigation .btn {
+            margin: 0 3px;
         }
 
         .object-legend, label {
@@ -123,195 +156,215 @@
     <div class="container-fluid fill-height">
         <div class="row fill-height">
             <div class="col-sm-3 dark left-menu">
-              <form id="form">
-                <div class="function-template hidden">
-                    <div
-                        class="input-group function-input-group"
-                        data-oid="{{oid}}"
-                        data-name="{{name}}"
-                    >
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <input
-                            type="text"
-                            class="form-control equation-input"
-                            name="function-equation"
-                            id="function-equation-{{oid}}"
-                            placeholder=""
-                            value="{{equation}}"
-                        />
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary update-btn" type="button">Go!</button>
-                        </span>
-                    </div>
-                </div>
-                <div class="serie-template hidden">
-                    <div
-                        class="input-group serie-input-group"
-                        data-oid="{{oid}}"
-                        data-name="{{name}}"
-                    >
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <input
-                            type="text"
-                            class="form-control serie-equation"
-                            name="serie-equation"
-                            id="serie-equation-{{oid}}"
-                            placeholder=""
-                            value="{{equation}}"
-                        />
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary update-btn" type="button">Go!</button>
-                        </span>
-                    </div>
-                </div>
-                <div class="vector-field-template hidden">
-                    <div
-                        class="form-group vector-field"
-                        data-oid="{{oid}}"
-                        data-name="{{name}}"
-                    >
-                        <div class="form-row">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
-                            </button>
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                            <div class="col components-container">
-                            </div>
-                            <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                <form id="form">
+                    <div class="function-template hidden">
+                        <div
+                            class="form-group input-group function-input-group"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <input
+                                type="text"
+                                class="form-control equation-input"
+                                name="function-equation"
+                                id="function-equation-{{oid}}"
+                                placeholder=""
+                                value="{{equation}}"
+                            />
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </span>
                         </div>
                     </div>
-                </div>
-                <div class="matrix-field-template hidden">
-                    <div
-                        class="form-group matrix-field"
-                        data-oid="{{oid}}"
-                        data-name="{{name}}"
-                    >
-                        <div class="form-row">
-                            <button class="btn btn-secondary hide-btn" type="button">
-                                <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
-                            </button>
-                            <button class="btn btn-secondary pulse-btn" type="button">
-                                <i class="fa fa-signal" aria-hidden="true"></i>
-                            </button>
-                            <div class="col vector-fields-container">
-                            </div>
-                            <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                    <div class="serie-template hidden">
+                        <div
+                            class="form-group input-group serie-input-group"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                            <input
+                                type="text"
+                                class="form-control serie-equation"
+                                name="serie-equation"
+                                id="serie-equation-{{oid}}"
+                                placeholder=""
+                                value="{{equation}}"
+                            />
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </span>
                         </div>
                     </div>
-                </div>
-                <div class="matrix-vector-field-template hidden">
-                    <div
-                        class="vector-field"
-                        data-oid="{{oid}}"
-                        data-name="{{name}}"
-                    >
-                        <div class="components-container">
-                        </div>
-                    </div>
-                </div>
-                <div class="axis-template hidden">
-                    <div class="form-row">
-                        <div class="form-group">
+                    <div class="vector-field-template hidden">
+                        <div
+                            class="form-group vector-field"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
                             <div class="form-row">
-                                <div class="col">
-                                    <label for="{{oid}}-{{name}}-min">Min {{name}}</label>
-                                    <input
-                                        type="text"
-                                        class="form-control axis-min-input"
-                                        name="{{name}}-min"
-                                        id="{{oid}}-{{name}}-min"
-                                        placeholder="min {{name}}"
-                                        value="{{min}}"
-                                    />
-                                </div>
-                                <div class="col">
-                                    <label for="{{oid}}-{{name}}-steps">Steps</label>
-                                    <input
-                                        type="text"
-                                        class="form-control axis-steps-input"
-                                        name="{{name}}-steps"
-                                        id="{{oid}}-{{name}}-steps"
-                                        placeholder="nb of steps on {{name}}"
-                                        value="{{steps}}"
-                                    />
-                                </div>
-                                <div class="col">
-                                    <label for="{{oid}}-{{name}}-max">Max {{name}}</label>
-                                    <input
-                                        type="text"
-                                        class="form-control axis-max-input"
-                                        name="{{name}}-max"
-                                        id="{{oid}}-{{name}}-max"
-                                        placeholder="max {{name}}"
-                                        value="{{max}}"
-                                    />
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                                <div class="col components-container">
                                 </div>
                                 <button class="btn btn-secondary update-btn" type="button">Go!</button>
                             </div>
                         </div>
-                        <div class="form-group range">
-                            <button type="button" class="btn btn-primary prev-btn">
-                                <i class="fa fa-step-backward" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary next-btn">
-                                <i class="fa fa-step-forward" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary play-btn">
-                                <i class="fa fa-play" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary stop-btn">
-                                <i class="fa fa-stop" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary last-btn">
-                                <i class="fa fa-fast-forward" aria-hidden="true"></i>
-                            </button>
+                    </div>
+                    <div class="matrix-field-template hidden">
+                        <div
+                            class="form-group matrix-field"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <div class="form-row">
+                                <button class="btn btn-secondary hide-btn" type="button">
+                                    <i class="fa fa-eye hide-icon" aria-hidden="true"></i>
+                                </button>
+                                <button class="btn btn-secondary pulse-btn" type="button">
+                                    <i class="fa fa-signal" aria-hidden="true"></i>
+                                </button>
+                                <div class="col vector-fields-container">
+                                </div>
+                                <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="objects-container"><!-- objects here --></div>
-                <div class="form-group add-bar">
-                    <button type="button" class="btn btn-primary add-function-btn">f(time, x, y)</button>
-                    <button type="button" class="btn btn-primary add-serie-btn">f(first, prev, time, x, y)</button>
-                    <button type="button" class="btn btn-primary add-vector-field-btn">V(Vx(time, x, y), Vy(time, x, y))</button>
-                    <button type="button" class="btn btn-primary add-matrix-field-btn">M(Mx(time, x, y), My(time, x, y))</button>
-                </div>
-                <div class="form-group axes-container">
-                </div>
-                <div class="form-group capture">
-                    <table class="table table-striped data">
-                        <thead>
-                            <th>Variable</th>
-                            <th>Value</th>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-              </form>
+                    <div class="matrix-vector-field-template hidden">
+                        <div
+                            class="form-group vector-field"
+                            data-oid="{{oid}}"
+                            data-name="{{name}}"
+                        >
+                            <div class="components-container">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="axis-template hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <label for="{{oid}}-{{name}}-min">Min {{name}}</label>
+                                        <input
+                                            type="text"
+                                            class="form-control axis-min-input"
+                                            name="{{name}}-min"
+                                            id="{{oid}}-{{name}}-min"
+                                            placeholder="min {{name}}"
+                                            value="{{min}}"
+                                        />
+                                    </div>
+                                    <div class="col">
+                                        <label for="{{oid}}-{{name}}-steps">Steps</label>
+                                        <input
+                                            type="text"
+                                            class="form-control axis-steps-input"
+                                            name="{{name}}-steps"
+                                            id="{{oid}}-{{name}}-steps"
+                                            placeholder="nb of steps on {{name}}"
+                                            value="{{steps}}"
+                                        />
+                                    </div>
+                                    <div class="col">
+                                        <label for="{{oid}}-{{name}}-max">Max {{name}}</label>
+                                        <input
+                                            type="text"
+                                            class="form-control axis-max-input"
+                                            name="{{name}}-max"
+                                            id="{{oid}}-{{name}}-max"
+                                            placeholder="max {{name}}"
+                                            value="{{max}}"
+                                        />
+                                    </div>
+                                    <button class="btn btn-secondary update-btn" type="button">Go!</button>
+                                </div>
+                            </div>
+                            <div class="form-group range">
+                                <button type="button" class="btn btn-primary prev-btn">
+                                    <i class="fa fa-step-backward" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary next-btn">
+                                    <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary play-btn">
+                                    <i class="fa fa-play" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary stop-btn">
+                                    <i class="fa fa-stop" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary last-btn">
+                                    <i class="fa fa-fast-forward" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="objects-container"><!-- objects here --></div>
+                    <div class="form-group axes-container">
+                    </div>
+                    <div class="form-group capture">
+                        <table class="table table-striped data">
+                            <thead>
+                                <th>Variable</th>
+                                <th>Value</th>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
             </div>
-            <div class="col-sm-9 nopad canvas-container fill-height">
-                <canvas id="viewer"></canvas>
+            <div class="col-sm-9 nopad fill-height">
+                <nav class="navbar navbar-dark dark space-navigation">
+                    <form class="form-inline">
+                        <button type="button" class="btn btn-primary btn-sm add-axis-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <span>var</span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm add-function-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <span>f</span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm add-serie-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <span>serie</span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm add-vector-field-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <span>vec</span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm add-matrix-field-btn">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            <span>mat</span>
+                        </button>
+                    </form>
+                </nav>
+                <div class="row canvas-container">
+                    <canvas id="viewer"></canvas>
+                </div>
             </div>
         </div>
     </div>

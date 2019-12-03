@@ -5,6 +5,11 @@ class Axis2dRenderer {
     }
 
     render(context) {
+        if (undefined === this.axisUI.axis.basis || this.axisUI.axis.basis.isNaV()) {
+            console.warn('axis has no basis', this.axisUI.axis.name);
+            return;
+        }
+
         let x = Math.abs(this.axisUI.axis.basis.x),
             y = Math.abs(this.axisUI.axis.basis.y);
 

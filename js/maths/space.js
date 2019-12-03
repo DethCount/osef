@@ -16,6 +16,15 @@ class Space {
         return this.axesByName.hasOwnProperty(name) ? this.axesByName[name] : null;
     }
 
+    addAxis(name, axis) {
+        axis = axis instanceof Axis 
+            ? axis 
+            : new Axis(name);
+
+        this.axes.push(axis);
+        this.axesByName[name] = axis;
+    }
+
     each (callback, context) {
         context = $.extend({time: 0, dx: 0, dy: 0, dtime: 0}, context || {});
         this.getAxisByName('x').each((x) => {
