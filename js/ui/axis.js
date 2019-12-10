@@ -140,67 +140,9 @@ class AxisUI {
         if (ctxt instanceof CanvasRenderingContext2D) {
             (new Axis2dRenderer(this, ctxt))
                 .render(context);
+        } else if (ctxt instanceof WebGLRenderingContext || ctxt instanceof WebGL2RenderingContext) {
+            (new Axis3dRenderer(this, ctxt))
+                .render(context);
         }
     }
-
-    /*
-    render(ctxt, context) {
-        let x = Math.abs(this.axis.basis.x),
-            y = Math.abs(this.axis.basis.y);
-
-        ctxt.font = this.fontSize + 'px ' + this.fontFamily;
-        ctxt.strokeStyle = this.color;
-        ctxt.lineWidth = this.lineWidth;
-
-        let previousPos, textWidth;
-
-        this.axis.each((i) => {
-            if (i == 0) {
-                return;
-            }
-
-            let vector = this.space.applyTransformation(
-                this.space.mergeContextAndVector(
-                    context,
-                    new Vector2(i * x, i * y)
-                )
-            );
-
-            if (previousPos) {
-                ctxt.beginPath();
-                ctxt.moveTo(previousPos.x, previousPos.y);
-                ctxt.lineTo(vector.x, vector.y);
-                ctxt.stroke();
-            }
-            //console.log(this.axis.name, previousPos, vector);
-
-            ctxt.beginPath();
-            ctxt.moveTo(vector.x, vector.y);
-            let vector2 = this.space.applyTransformation(
-                this.space.mergeContextAndVector(
-                    context,
-                    new Vector2(i * x + this.markerLength * y, i * y + this.markerLength * x)
-                )
-            );
-
-            ctxt.lineTo(vector2.x, vector2.y);
-            ctxt.stroke();
-
-            let prec = Math.pow(10, this.precision);
-            ctxt.fillText(
-                Math.round(i*prec)/prec,
-                vector.x
-                    - x * this.axisPadding
-                    - this.otherAxisPadding * y
-                    - Math.round(ctxt.measureText(i == 1).width / 2),
-                vector.y
-                    + y * this.axisPadding
-                    + this.otherAxisPadding * x
-                    + Math.round(this.fontSize / 2)
-            );
-
-            previousPos = vector.clone();
-        });
-    }
-    */
 }

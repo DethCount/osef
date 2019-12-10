@@ -7,6 +7,20 @@ class Particle {
         this.color = color || randomColor();
     }
 
+    clone() {
+        let c = new (this.constructor)(
+            this.pos.clone(),
+            this.v,
+            this.size.clone(),
+            this.color
+        );
+
+        c.initPos = this.initPos.clone();
+        c.initV = this.initV;
+
+        return c;
+    }
+
     reset() {
         this.pos = this.initPos.clone();
         this.v = this.initV instanceof Vector2 ? this.initV.clone() : this.initV;

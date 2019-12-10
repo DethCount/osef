@@ -5,7 +5,7 @@ class Matrix2 {
     }
 
     transpose() {
-        return new Matrix2(
+        return new (this.constructor)(
             new Vector2(this.x.x, this.y.x),
             new Vector2(this.x.y, this.y.y)
         );
@@ -17,13 +17,13 @@ class Matrix2 {
 
     add(tensor) {
         if (!isNaN(tensor)) {
-            return new Matrix2(
+            return new (this.constructor)(
                 this.x.add(tensor),
                 this.x.add(tensor)
             );
         }
 
-        return new Matrix2(
+        return new (this.constructor)(
             this.x.add(tensor.x),
             this.y.add(tensor.y)
         );
@@ -47,7 +47,7 @@ class Matrix2 {
     normalize() {
         var len = this.length();
 
-        return new Matrix2(
+        return new (this.constructor)(
             new Vector2(this.x.x/len, this.x.y/len),
             new Vector2(this.y.x/len, this.y.y/len),
         );
@@ -63,7 +63,7 @@ class Matrix2 {
     }
 
     clone() {
-        return new Matrix2(
+        return new (this.constructor)(
             this.x.clone(),
             this.y.clone()
         );

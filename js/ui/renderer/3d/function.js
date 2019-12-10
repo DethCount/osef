@@ -1,22 +1,24 @@
-class Function2dRenderer {
+class Function3dRenderer {
     constructor(funUI) {
         this.funUI = funUI;
-        this.ctxt = this.funUI.$canvas.get(0).getContext('2d');
+        this.ctxt = this.funUI.$canvas.get(0).getContext('webgl2');
 
+        console.warn('todo function particle renderer');
+        /*
         if (this.funUI.$particlesCanvas && this.funUI.$particlesCanvas.length) {
-            this.particleRenderer = new Particle2dRenderer(
-                this.funUI.$particlesCanvas.get(0).getContext('2d')
+            this.particleRenderer = new Particle3dRenderer(
+                this.funUI.$particlesCanvas.get(0).getContext('webgl2')
             );
         }
+        */
+
+        this.space = this.funUI.space.clone();
+        this.space.parent = new NormalizedSpace();
     }
 
     clear(context) {
-        this.ctxt.clearRect(
-            0,
-            0,
-            this.ctxt.canvas.width,
-            this.ctxt.canvas.height
-        );
+        this.ctxt.clearColor(0, 0, 0, 0);
+        this.ctxt.clear(this.ctxt.COLOR_BUFFER_BIT);
 
         if (this.particleRenderer) {
             this.particleRenderer.clear();
@@ -24,79 +26,59 @@ class Function2dRenderer {
     }
 
     render(context, prevContext) {
-        if (undefined === context) {
-            this.space.each((context) => {
-                this.render(context, prevContext);
-                prevContext = $.extend({}, context);
-            });
+        console.log('function render', this.funUI.fun.equation, context, prevContext);
+        this.clear(context);
 
-            return this;
+        if (!this.lineProgram) {
+            this.lineProgram = new WebGLProgramLine(this.ctxt, this.funUI.color);
         }
 
-        if (undefined === prevContext) {
-            this.clear(context);
-        }
+        let vertices = [];
 
-        let val = this.funUI.fun.evaluate(context);
-        if (isNaN(val)) {
-            return this;
-        }
+        context = context || {};
+        this.space.getAxisByName('x').each((x) => {
+            context.x = x;
 
-        if (this.funUI.isVectorField()) {
-            this.renderer.renderVector(context);
+            let val = this.funUI.fun.evaluate(context);
+            if (isNaN(val)) {
+                return;
+            }
 
-            return this;
-        }
+            let vector = this.space.applyTransformation(
+                this.space.mergeContextAndVector(
+                    context,
+                    new Vector2(x, val)
+                )
+            );
+            // console.log('fun v', x, val, vector.clone());
 
-        if (prevContext) {
-            let val1, val2,
-                p1, p2;
-
-            val1 = this.funUI.fun.evaluate(prevContext);
-            if (!isNaN(val1)) {
-                p1 = this.funUI.space.applyTransformation(
-                    this.funUI.space.mergeContextAndVector(prevContext, new Vector2(prevContext.x, val1))
-                );
+            if (vector.isNaV()) {
+                return;
             }
 
 
-            val2 = this.funUI.fun.evaluate(context);
-            if (!isNaN(val2)) {
-                p2 = this.funUI.space.applyTransformation(
-                    this.funUI.space.mergeContextAndVector(context, new Vector2(context.x, val2))
-                );
-            }
+            vertices.push(
+                vector.x, 
+                vector.y
+            );
+        });
 
-            this.renderSegment(p1, p2);
+        if (vertices.length > 0) {
+            this.lineProgram.draw(new Float32Array(vertices));
         }
-
-        var p = this.funUI.space.applyTransformation(
-            this.funUI.space.mergeContextAndVector(context, new Vector2(context.x, val))
-        );
-
-        if (!p.isNaV()) {
-            this.renderPoint(p.x, p.y);
-        }
-
-        return this;
     }
 
     renderSegment(p1, p2) {
         if (!p1 || !p2 || p1.isNaV() || p2.isNaV() || p1.equals(p2)) {
             return this;
         }
+        console.log('renderSegment', p1, p2);
 
-        this.ctxt.save();
-        this.ctxt.strokeStyle = this.funUI.color;
-        if (this.funUI.lineWidth !== undefined) {
-            this.ctxt.lineWidth = this.funUI.lineWidth;
+        if (!this.lineProgram) {
+            this.lineProgram = new WebGLProgramLine(this.ctxt, this.funUI.color);
         }
 
-        this.ctxt.beginPath();
-        this.ctxt.moveTo(p1.x, p1.y);
-        this.ctxt.lineTo(p2.x, p2.y);
-        this.ctxt.stroke();
-        this.ctxt.restore();
+        this.lineProgram.draw(new Float32Array([p1.x, p1.y, p2.x, p2.y]));
 
         if (this.funUI.showPoints) {
             if (p2) {
@@ -110,15 +92,34 @@ class Function2dRenderer {
     }
 
     renderPoint(x, y) {
-        let margin = Math.round(this.funUI.pointWidth / 2);
+        console.warn(' todo renderPoint', x, y);
+        return this;
+        if (!this.lineProgram) {
+            this.lineProgram = new WebGLProgramLine(this.ctxt, this.funUI.color);
+        }
 
-        this.ctxt.fillStyle = this.funUI.pointColor;
-        this.ctxt.fillRect(x - margin, y - margin, this.funUI.pointWidth, this.funUI.pointWidth);
+        let margin = Math.round(this.funUI.pointWidth / 2);
+        let mulx = 2 * (1 / this.ctxt.canvas.width);
+        let muly = 2 * (1 / this.ctxt.canvas.height);
+
+        let triangles = [
+            (x + margin) * mulx - 1, (y + margin) * muly - 1,
+            (x + margin) * mulx - 1, (y - margin) * muly - 1,
+            (x - margin) * mulx - 1, (y - margin) * muly - 1,
+
+            (x - margin) * mulx - 1, (y - margin) * muly - 1,
+            (x - margin) * mulx - 1, (y + margin) * muly - 1,
+            (x + margin) * mulx - 1, (y + margin) * muly - 1
+        ];
+
+        this.lineProgram.draw(new Float32Array(triangles), this.ctxt.TRIANGLES);
 
         return this;
     }
 
     renderVector(args) {
+        console.warn('todo renderVector', args);
+        /*
         if (!args || args.dx == 0 || args.dy == 0) {
             return this;
         }
@@ -193,6 +194,7 @@ class Function2dRenderer {
         this.ctxt.lineTo(vector4.x, vector4.y);
         this.ctxt.stroke();
         this.ctxt.restore();
+        */
 
         return this;
     }

@@ -12,6 +12,16 @@ class Space {
         }
     }
 
+    clone() {
+        return new (this.constructor)(
+            this.axes, 
+            undefined === this.parent ? undefined : this.parent.clone(), 
+            this.position, 
+            undefined === this.transformation ? undefined : this.transformation.clone(), 
+            undefined === this.transformationObject ? undefined : this.transformationObject.clone()
+        );
+    }
+
     getAxisByName(name) {
         return this.axesByName.hasOwnProperty(name) ? this.axesByName[name] : null;
     }
@@ -55,6 +65,7 @@ class Space {
         let vector = new Vector2(context.x, context.y);
         debug && console.log(context, vector);
         if (false !== ignoreOutside && this.isOutside(vector)) {
+            debug && console.log('outside space');
             return new Vector2(Number.NaN, Number.NaN);
         }
 
@@ -73,10 +84,15 @@ class Space {
     }
 
     applyTransformation(context, recursive, ignoreOutside, debug) {
+        debug && console.log('applyTransformation', this, context, recursive, ignoreOutside, debug);
         let basis = this.axes[0].basis
             .add(this.axes[1].basis);
 
         let vector = this.transformContext(context, ignoreOutside, debug);
+
+        if (vector.isNaV()) {
+            return vector;
+        }
 
         vector = vector
             .sub(
@@ -87,6 +103,15 @@ class Space {
             )
             .multiply(basis);
 
+        debug && console.log(
+            'base',
+            new Vector2(
+                basis.x > 0 ? this.axesByName['x'].min : this.axesByName['x'].max,
+                basis.y > 0 ? this.axesByName['y'].min : this.axesByName['y'].max
+            ),
+            basis,
+            vector
+        );
 
         if (this.parent) {
             vector = vector
@@ -95,6 +120,24 @@ class Space {
                         this.parent.axes[0].length() / this.axes[0].length(),
                         this.parent.axes[1].length() / this.axes[1].length()
                     )
+                )
+                .add(
+                    new Vector2(
+                        this.parent.getAxisByName('x').min,
+                        this.parent.getAxisByName('y').min
+                    )
+                );
+
+            debug && console.log('parent', 
+                new Vector2(
+                        this.parent.axes[0].length() / this.axes[0].length(),
+                        this.parent.axes[1].length() / this.axes[1].length()
+                ),
+                new Vector2(
+                    this.parent.getAxisByName('x').min,
+                    this.parent.getAxisByName('y').min
+                ),
+                vector
                 );
         }
 
@@ -103,7 +146,11 @@ class Space {
         }
 
         if (this.parent && recursive !== false) {
-            vector = this.parent.transformContext(this.mergeContextAndVector(context, vector));
+            vector = this.parent.transformContext(
+                this.mergeContextAndVector(context, vector),
+                ignoreOutside, 
+                debug
+            );
         }
 
         return vector;

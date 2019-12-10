@@ -123,6 +123,12 @@ class MatrixFieldUI {
         }
     }
 
+    on(eventName, callback) {
+        this.$elt.on(eventName, callback);
+
+        return this;
+    }
+
     addVectorFieldUI(idx) {
         var component = this.mf.components[idx].name;
         var color = randomColor();
@@ -191,7 +197,9 @@ class MatrixFieldUI {
     }
 
     onUpdateBtnClick(event) {
-        this.update();
+        this.update(false);
+        
+        this.$elt.trigger('update');
     }
 
     update(render) {

@@ -34,12 +34,13 @@ class SpaceUI {
         this.vectorFieldTemplate = vectorFieldTemplate || $('.vector-field-template').html();
         this.matrixFieldTemplate = matrixFieldTemplate || $('.matrix-field-template').html();
         this.matrixFieldVectorFieldTemplate = matrixFieldVectorFieldTemplate || $('.matrix-vector-field-template').html();
-        this.renderingContextName = renderingContextName || '2d';
+        this.renderingContextName = renderingContextName || '3d';
 
         this.selectors = $.extend(
             {
                 axesContainer: '.axes-container',
                 objectsContainer: '.objects-container',
+                helpContainer: '.help-container .list-group',
                 nav: {
                     bar: '.space-navigation'
                 },
@@ -65,12 +66,20 @@ class SpaceUI {
         }
 
         this.objects.unshift(this.space.transformationObject);
+        let spaceTransformIdx = Object.keys(this.objects)[0];
 
         for (var idx in this.objects) {
             this.addObjectUI(idx);
         }
 
+        this.objectsUI[spaceTransformIdx]
+            .on('update', this.onSpaceTransformUpdate.bind(this, spaceTransformIdx));
+
         this.spaceNavUI.init();
+        let $help = $(this.selectors.helpContainer);
+        for (let m of MathFunctions) {
+            $help.append('<li class="list-group-item"><a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/'+m+'">'+m+'</a></li>');
+        }
 
         if (undefined === this.$canvas) {
             this.$canvas = $('<canvas></canvas>')
@@ -80,6 +89,8 @@ class SpaceUI {
 
         if (this.renderingContextName == '2d') {
             this.renderer = new Space2dRenderer(this);
+        } else if(this.renderingContextName == '3d') {
+            this.renderer = new Space3dRenderer(this);
         }
 
         this.currentAnimationFrame = undefined;
@@ -107,6 +118,10 @@ class SpaceUI {
         }
 
         return animated;
+    }
+
+    onSpaceTransformUpdate(spaceTransformIdx) {
+        this.render();
     }
 
     onAxisUpdate(event) {

@@ -54,7 +54,7 @@ class FunctionUI {
         this.normalize = normalize !== false;
         this.arrowAngle = arrowAngle === undefined ? Math.PI / 8 : 1*arrowAngle;
         this.arrowHeight = arrowHeight === undefined ? 0.25 : 1*arrowHeight;
-        this.renderingContextName = renderingContextName || '2d';
+        this.renderingContextName = renderingContextName || '3d';
 
         this.init();
     }
@@ -97,7 +97,20 @@ class FunctionUI {
             this.$elt.on('click', this.selectors.integrateBtn, this.onIntegrateBtnClick.bind(this));
         }
 
-        this.renderer = new Function2dRenderer(this);
+        if (this.renderingContextName == '2d') {
+            this.renderer = new Function2dRenderer(this);
+        } else if (this.renderingContextName == '3d') {
+            this.renderer = new Function3dRenderer(this);
+        }
+    }
+
+    getStartContext() {
+        let context = {};
+        for (let component in this.space.axesByName) {
+            context[component] = this.space.axesByName[component].min;
+        }
+
+        return context;
     }
 
     onUpdateBtnClick(event) {
@@ -167,7 +180,15 @@ class FunctionUI {
     }
 
     render(context, prevContext) {
+        console.log('function render', context, prevContext);
+        if (this.viewState == 'hidden') {
+            this.renderer.clear();
+            return this;
+        }
+
         this.renderer.render(context, prevContext);
+
+        return this;
     }
 
     resetParticles(space, context) {

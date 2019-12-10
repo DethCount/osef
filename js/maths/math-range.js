@@ -55,4 +55,12 @@ class MathRange {
 
         return current + this.getIncrement();
     }
+
+    length() {
+        return this.max - this.min;
+    }
+
+    isOutside(val) {
+        return val <= this.min || val >= this.max;
+    }
 }

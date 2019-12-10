@@ -11,6 +11,7 @@
     <script src="js/maths/pulse.js"></script>
     <script src="js/maths/serie.js"></script>
     <script src="js/maths/space.js"></script>
+    <script src="js/maths/normalized-space.js"></script>
     <script src="js/maths/particle.js"></script>
     <script src="js/maths/vector-field.js"></script>
     <script src="js/maths/matrix-field.js"></script>
@@ -20,6 +21,10 @@
     <script src="js/ui/renderer/2d/particle.js"></script>
     <script src="js/ui/renderer/2d/vector-field.js"></script>
     <script src="js/ui/renderer/2d/space.js"></script>
+    <script src="js/ui/renderer/3d/programs/line.js"></script>
+    <script src="js/ui/renderer/3d/axis.js"></script>
+    <script src="js/ui/renderer/3d/function.js"></script>
+    <script src="js/ui/renderer/3d/space.js"></script>
     <script src="js/ui/axis.js"></script>
     <script src="js/ui/function.js"></script>
     <script src="js/ui/serie.js"></script>
@@ -56,6 +61,11 @@
 
         .left-menu {
             padding: 5px;
+        }
+
+        .left-menu .nav-tabs .nav-link:not(.active) {
+            color: #fff;
+            text-decoration: underline;
         }
 
         .form-row {
@@ -322,18 +332,39 @@
                             </div>
                         </div>
                     </div>
-                    <div class="objects-container"><!-- objects here --></div>
-                    <div class="form-group axes-container">
-                    </div>
-                    <div class="form-group capture">
-                        <table class="table table-striped data">
-                            <thead>
-                                <th>Variable</th>
-                                <th>Value</th>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#parameters-container">Math</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#capture-container">Data</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#help-container">Ref</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div id="parameters-container" class="parameters-container left-menu-item tab-pane active" data-parent="#form">
+                            <div class="objects-container"><!-- objects here --></div>
+                        </div>
+
+                        <div id="capture-container" class="left-menu-item form-group capture tab-pane" aria-labelledby="capture-heading" data-parent="#form">
+                            <div class="form-group axes-container"></div>
+                            <table class="table table-striped data">
+                                <thead>
+                                    <th>Variable</th>
+                                    <th>Value</th>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="help-container" class="help-container left-menu-item tab-pane" data-parent="#form">
+                            <ul class="list-group"></ul>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -362,7 +393,7 @@
                         </button>
                     </form>
                 </nav>
-                <div class="row canvas-container">
+                <div class="canvas-container">
                     <canvas id="viewer"></canvas>
                 </div>
             </div>

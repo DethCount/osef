@@ -26,13 +26,14 @@ $(() => {
 
     let workSpace = new Space(
         [
-            new Axis('x', new Vector2(1, 0), minX, maxX, stepsX, 'red'),
-            new Axis('y', new Vector2(0, -1), minY, maxY, stepsY, 'green'),
+            new Axis('x', new Vector2(1, 0), minX, maxX, stepsX, 'rgba(255, 0, 0, 1)'),
+            new Axis('y', new Vector2(0, 1), minY, maxY, stepsY, 'rgba(0, 255, 0, 1)'),
             new Axis('time', new Vector2(0, 0), minTime, maxTime, stepsTime),
         ],
         canvasSpace,
         undefined,
         undefined,
+        /*
         new MatrixField(
             'm0',
             [
@@ -55,13 +56,38 @@ $(() => {
             ],
             spaceColor
         )
+        */
+
+        new MatrixField(
+            'm0',
+            [
+                new VectorField(
+                    'x',
+                    [
+                        new MathFunction('x', '1/1.5'),
+                        new MathFunction('y', '0')
+                    ],
+                    'red'
+                ),
+                new VectorField(
+                    'y',
+                    [
+                        new MathFunction('x', '0'),
+                        new MathFunction('y', '1/1.5')
+                    ],
+                    'green'
+                )
+            ],
+            spaceColor
+        )
     );
 
     let objects = [
+        new MathFunction('y0', '{x} + 1'),/*
         new MathFunction('y0', '{time}'),
         new MathFunction('y0', 'cos(({x}/({time}%10))*PI)'),
-        new MathFunction('y0', 'sin(2 * PI * {x} + {time})'),
-        new MathFunction('y1', 'pow({x}, 2) + pow({y}, 2)'),
+        new MathFunction('y0', 'sin(2 * PI * {x} + {time})'),*/
+        new MathFunction('y1', 'pow({x}, 2) + pow({y}, 2)'),/*
         new MathFunction('y2', 'pow(cos({time} * {y}), 2) - pow(sin({time} * {x}), 2)'),
         new Serie('s0', '{prev}+1', 'time', workSpace.axes[2], 1),
         new Serie('s0', 'sin({x}*{y}+{prev})', 'time', workSpace.axes[2], 1),
@@ -78,7 +104,7 @@ $(() => {
                 new MathFunction('x', 'cos({x})*-sin({y})'),
                 new MathFunction('y', '-sin({y}) * cos({x})')
             ]
-        )
+        )*/
     ];
 
     var workSpaceUI = new SpaceUI(

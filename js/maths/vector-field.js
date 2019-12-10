@@ -10,6 +10,34 @@ class VectorField {
         this.lineWidth = lineWidth || 1;
     }
 
+    clone() {
+        let components, particles;
+        if (undefined !== this.components) {
+            components = [];
+            for (let component of this.components) {
+                components.push(component.clone());
+            }
+        }
+
+        if (undefined !== this.particles) {
+            particles = [];
+            for (let particle of this.particles) {
+                particles.push(particle.clone());
+            }
+        }
+
+        return new (this.constructor)(
+            this.name, 
+            this.components, 
+            this.color, 
+            this.particles, 
+            this.normalize, 
+            this.arrowAngle, 
+            this.arrowHeight,
+            this.lineWidth
+        );
+    }
+
     outdate() {
         for (var idx in this.components) {
             this.components[idx].outdate();

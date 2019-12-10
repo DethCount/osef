@@ -1,7 +1,18 @@
 let MathFunctions = Object.getOwnPropertyNames(Math);
 
 class MathFunction {
-    constructor(name, equation, color, lineWidth, showPoints, pointWidth, pointColor, normalize, arrowAngle, arrowHeight) {
+    constructor(
+        name, 
+        equation, 
+        color, 
+        lineWidth, 
+        showPoints, 
+        pointWidth, 
+        pointColor, 
+        normalize, 
+        arrowAngle, 
+        arrowHeight
+    ) {
         this.name = name;
         this.equation = equation;
         this.color = color;
@@ -17,6 +28,28 @@ class MathFunction {
         this.jsEquation = undefined;
         this.prepared = false;
         this.outdated = false;
+    }
+
+    clone() {
+        let c = new this.constructor(
+            this.name,
+            this.equation,
+            this.color,
+            this.lineWidth,
+            this.showPoints,
+            this.pointWidth,
+            this.pointColor,
+            this.normalize,
+            this.arrowAngle,
+            this.arrowHeight
+        );
+
+        c.parameters = this.parameters;
+        c.jsEquation = this.jsEquation;
+        c.prepared = this.prepared;
+        c.outdated = this.outdated;
+
+        return c;
     }
 
     requires(parameter) {

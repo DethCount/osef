@@ -10,13 +10,13 @@ class Vector2 {
 
     add(vector) {
         if (!(vector instanceof Object)) {
-            return new Vector2(
+            return new (this.constructor)(
                 this.x + vector,
                 this.y + vector
             );
         }
 
-        return new Vector2(
+        return new (this.constructor)(
             this.x + vector.x,
             this.y + vector.y
         );
@@ -24,13 +24,13 @@ class Vector2 {
 
     sub(vector) {
         if (!(vector instanceof Object)) {
-            return new Vector2(
+            return new (this.constructor)(
                 this.x - vector,
                 this.y - vector
             );
         }
 
-        return new Vector2(
+        return new (this.constructor)(
             this.x - vector.x,
             this.y - vector.y
         );
@@ -38,20 +38,20 @@ class Vector2 {
 
     multiply(vector) {
         if (vector instanceof Vector2) {
-            return new Vector2(
+            return new (this.constructor)(
                 this.x * vector.x,
                 this.y * vector.y
             );
         }
 
         if (!(vector instanceof Object)) {
-            return new Vector2(
+            return new (this.constructor)(
                 this.x * vector,
                 this.y * vector
             );
         }
 
-        return new Vector2(
+        return new (this.constructor)(
             this.x * vector[0].x + this.y * vector[1].x,
             this.x * vector[0].y + this.y * vector[1].y
         );
@@ -59,20 +59,20 @@ class Vector2 {
 
     divide(vector) {
         if (vector instanceof Vector2) {
-            return new Vector2(
+            return new (this.constructor)(
                 this.x / vector.x,
                 this.y / vector.y
             );
         }
 
         if (!(vector instanceof Object)) {
-            return new Vector2(
+            return new (this.constructor)(
                 this.x / vector,
                 this.y / vector
             );
         }
 
-        return new Vector2(
+        return new (this.constructor)(
             this.x / vector[0].x + this.y / vector[0].y,
             this.x / vector[1].x + this.y / vector[1].y
         );
@@ -83,7 +83,7 @@ class Vector2 {
             return this.x == tensor && this.y == tensor;
         }
 
-        return this.x = tensor.x && this.y == tensor.y;
+        return this.x == tensor.x && this.y == tensor.y;
     }
 
     lengthSquared() {
@@ -99,10 +99,10 @@ class Vector2 {
     }
 
     clone() {
-        return new Vector2(this.x, this.y);
+        return new (this.constructor)(this.x, this.y);
     }
 
     round() {
-        return new Vector2(Math.round(this.x), Math.round(this.y));
+        return new (this.constructor)(Math.round(this.x), Math.round(this.y));
     }
 }
