@@ -19,7 +19,7 @@ class Particle3dRenderer {
         }
 
         if (!this.program) {
-            this.program = new WebGLProgramColoredTriangles(this.ctxt);
+            this.program = new Math3dProgramTriangles(this.ctxt);
         }
 
         let xml = pos.x - margin, xmt = pos.x + margin;
@@ -37,7 +37,11 @@ class Particle3dRenderer {
 
         console.log(particle);
 
-        this.program.draw(triangles, particle.color);
+        this.program.draw(
+            particle.color,
+            triangles,
+            undefined
+        );
 
         if (space.isOutside(particle.pos)) {
             particle.reset();

@@ -32,7 +32,6 @@ class Space3dRenderer {
             }
 
             if (space.parent instanceof CanvasSpace) {
-                console.log(space.axes[0].max, space.axes[1].max);
                 space.parent = new NormalizedSpace();
             }
 
@@ -66,10 +65,10 @@ class Space3dRenderer {
         var first = true;
 
         var factor = 100;
-        
+
         context.x = this.spaceUI.space.getAxisByName('x').min;
-        for (context.y = this.spaceUI.space.getAxisByName('y').min; 
-            context.y <= this.spaceUI.space.getAxisByName('y').max; 
+        for (context.y = this.spaceUI.space.getAxisByName('y').min;
+            context.y <= this.spaceUI.space.getAxisByName('y').max;
             context.y += this.spaceUI.space.getAxisByName('y').getIncrement()/factor
         ) {
             var pos = this.spaceUI.space.applyTransformation(context, true, false);
@@ -81,8 +80,8 @@ class Space3dRenderer {
         }
 
         context.y = this.spaceUI.space.getAxisByName('y').max;
-        for (context.x = this.spaceUI.space.getAxisByName('x').min; 
-            context.x <= this.spaceUI.space.getAxisByName('x').max; 
+        for (context.x = this.spaceUI.space.getAxisByName('x').min;
+            context.x <= this.spaceUI.space.getAxisByName('x').max;
             context.x += this.spaceUI.space.getAxisByName('x').getIncrement()/factor
         ) {
             var pos = this.spaceUI.space.applyTransformation(context, true, false);
@@ -94,21 +93,21 @@ class Space3dRenderer {
         }
 
         context.x = this.spaceUI.space.getAxisByName('x').max;
-        for (context.y = this.spaceUI.space.getAxisByName('y').max; 
-            context.y >= this.spaceUI.space.getAxisByName('y').min; 
+        for (context.y = this.spaceUI.space.getAxisByName('y').max;
+            context.y >= this.spaceUI.space.getAxisByName('y').min;
             context.y -= this.spaceUI.space.getAxisByName('y').getIncrement()/factor
         ) {
             var pos = this.spaceUI.space.applyTransformation(context, true, false);
             if (pos.isNaV()) {
                 continue;
             }
-            
+
             vertices.push(pos.x, pos.y);
         }
 
         context.y = this.spaceUI.space.getAxisByName('y').min;
         for (context.x = this.spaceUI.space.getAxisByName('x').max;
-            context.x >= this.spaceUI.space.getAxisByName('x').min; 
+            context.x >= this.spaceUI.space.getAxisByName('x').min;
             context.x -= this.spaceUI.space.getAxisByName('x').getIncrement()/factor
         ) {
             var pos = this.spaceUI.space.applyTransformation(context, true, false);
@@ -120,8 +119,12 @@ class Space3dRenderer {
         }
 
         if (vertices.length > 2) {
-            console.log('renderBoundaries', vertices);
-            this.program.draw(new Float32Array(vertices));
+            // console.log('renderBoundaries', vertices);
+            this.program.draw(
+                undefined,
+                new Float32Array(vertices),
+                undefined
+            );
         }
     }
 }

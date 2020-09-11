@@ -3,16 +3,11 @@ class Function3dRenderer {
         this.funUI = funUI;
         this.ctxt = this.funUI.$canvas.get(0).getContext('webgl2');
 
-        console.warn('todo function particle renderer');
-        /*
         if (this.funUI.$particlesCanvas && this.funUI.$particlesCanvas.length) {
             this.particleRenderer = new Particle3dRenderer(
                 this.funUI.$particlesCanvas.get(0).getContext('webgl2')
             );
         }
-        */
-
-        console.log(this.funUI.space)
     }
 
     clear(context) {
@@ -60,7 +55,11 @@ class Function3dRenderer {
         });
 
         if (vertices.length > 0) {
-            this.lineProgram.draw(new Float32Array(vertices));
+            this.lineProgram.draw(
+                undefined,
+                new Float32Array(vertices),
+                undefined
+            );
         }
     }
 
@@ -74,7 +73,11 @@ class Function3dRenderer {
             this.lineProgram = new Math3dProgramLine(this.ctxt, this.funUI.color);
         }
 
-        this.lineProgram.draw(new Float32Array([p1.x, p1.y, p2.x, p2.y]));
+        this.lineProgram.draw(
+            undefined,
+            new Float32Array([p1.x, p1.y, p2.x, p2.y]),
+            undefined
+        );
 
         if (this.funUI.showPoints) {
             if (p2) {
@@ -107,7 +110,12 @@ class Function3dRenderer {
             xmt, ymt
         ];
 
-        this.lineProgram.draw(new Float32Array(triangles), this.ctxt.TRIANGLES);
+        this.lineProgram.draw(
+            undefined,
+            new Float32Array(triangles),
+            undefined,
+            this.ctxt.TRIANGLES
+        );
 
         return this;
     }

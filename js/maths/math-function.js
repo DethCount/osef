@@ -2,15 +2,15 @@ let MathFunctions = Object.getOwnPropertyNames(Math);
 
 class MathFunction {
     constructor(
-        name, 
-        equation, 
-        color, 
-        lineWidth, 
-        showPoints, 
-        pointWidth, 
-        pointColor, 
-        normalize, 
-        arrowAngle, 
+        name,
+        equation,
+        color,
+        lineWidth,
+        showPoints,
+        pointWidth,
+        pointColor,
+        normalize,
+        arrowAngle,
         arrowHeight
     ) {
         this.name = name;
@@ -87,7 +87,7 @@ class MathFunction {
 
 
         this.jsEquation = function(){return eval(eq)};
-        console.log(eq);
+        // console.log(eq);
 
         this.prepared = true;
         this.outdated = false;

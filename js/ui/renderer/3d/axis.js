@@ -36,7 +36,7 @@ class Axis3dRenderer {
                 this.axisUI.space.mergeContextAndVector(
                     context,
                     new Vector2(
-                        i * this.axisUI.axis.basis.x + this.axisUI.markerLength * this.axisUI.axis.basis.y, 
+                        i * this.axisUI.axis.basis.x + this.axisUI.markerLength * this.axisUI.axis.basis.y,
                         i * this.axisUI.axis.basis.y + this.axisUI.markerLength * this.axisUI.axis.basis.x
                     )
                 )
@@ -49,8 +49,8 @@ class Axis3dRenderer {
         });
 
         if (vertices.length > 2) {
-            this.program.draw(new Float32Array(vertices));
-            this.program.draw(new Float32Array(markers), this.ctxt.LINES);
+            this.program.draw(undefined, new Float32Array(vertices), undefined);
+            this.program.draw(undefined, new Float32Array(markers), undefined, this.ctxt.LINES);
         }
     }
 }

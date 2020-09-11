@@ -51,7 +51,7 @@ class Math3dProgram {
     }
 
     init() {
-        console.log('createProgram', this.initialised, this.program);
+        // console.log('createProgram', this.initialised, this.program);
         if (!this.initialised) {
             this.createProgram();
 
@@ -90,7 +90,7 @@ void main () {
 
     // crude traduction from js rgba to vec4
     getFragmentShaderSource() {
-        console.log(this.color, color2webgl(this.color));
+        // console.log(this.color, color2webgl(this.color));
         return `
 precision highp float;
 
@@ -121,7 +121,7 @@ void main () {
     }
 
     initDraw(uniforms, attributes, varyings, mode) {
-        console.log(this, 'drawing', data, mode);
+        console.log(this, 'drawing', uniforms, attributes, varyings, mode);
         this.ctxt.useProgram(this.program);
 
         this.initUniforms(uniforms);
@@ -133,15 +133,15 @@ void main () {
     // vertices must be of the form [x1,y1,x2,y2]
     // to get a first vertex with a_position = vec2(x1,y1);
     // and a second vertex with a_position = vec2(x2,y2);
-    draw(data, mode) {
+    draw(uniforms, attributes, varyings, mode) {
         this.init();
 
-        this.initDraw(data, mode);
+        this.initDraw(uniforms, attributes, varyings, mode);
 
         this.ctxt.drawArrays(
             undefined !== mode ? mode : this.drawMode,
-            this.drawOffset, 
-            Math.ceil(data.length / this.vertexDimension)
+            this.drawOffset,
+            Math.ceil(attributes.length / this.vertexDimension)
         );
     }
 }
