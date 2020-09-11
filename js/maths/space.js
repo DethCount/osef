@@ -70,7 +70,7 @@ class Space {
         }
 
         let transformation = this.getTransformation(context);
-        debug && console.log(transformation);
+        debug && console.log(transformation, vector);
         if (undefined !== transformation) {
             vector = transformation.multiply(vector);
         }

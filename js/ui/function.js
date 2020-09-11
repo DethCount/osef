@@ -54,7 +54,7 @@ class FunctionUI {
         this.normalize = normalize !== false;
         this.arrowAngle = arrowAngle === undefined ? Math.PI / 8 : 1*arrowAngle;
         this.arrowHeight = arrowHeight === undefined ? 0.25 : 1*arrowHeight;
-        this.renderingContextName = renderingContextName || '3d';
+        this.renderingContextName = renderingContextName || DEFAULT_RENDERING_CONTEXT;
 
         this.init();
     }

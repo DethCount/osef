@@ -25,6 +25,7 @@ class SpaceUI {
         this.$canvasContainer = $canvasContainer;
         this.$canvas = $canvas;
         this.canvasIncrement = this.$canvasContainer.children().length;
+        this.color = color || 'rgba(0, 0, 0, 1)';
         this.objects = objects || [];
         this.axisTemplate = axisTemplate || $('.axis-template').html();
         this.axesUI = axesUI || {};
@@ -34,7 +35,7 @@ class SpaceUI {
         this.vectorFieldTemplate = vectorFieldTemplate || $('.vector-field-template').html();
         this.matrixFieldTemplate = matrixFieldTemplate || $('.matrix-field-template').html();
         this.matrixFieldVectorFieldTemplate = matrixFieldVectorFieldTemplate || $('.matrix-vector-field-template').html();
-        this.renderingContextName = renderingContextName || '3d';
+        this.renderingContextName = renderingContextName || DEFAULT_RENDERING_CONTEXT;
 
         this.selectors = $.extend(
             {

@@ -66,7 +66,7 @@ class VectorFieldUI {
         this.normalize = normalize !== false;
         this.arrowAngle = arrowAngle === undefined ? Math.PI / 8 : 1*arrowAngle;
         this.arrowHeight = arrowHeight === undefined ? 0.25 : 1*arrowHeight;
-        this.renderingContextName = renderingContextName || '2d';
+        this.renderingContextName = renderingContextName || DEFAULT_RENDERING_CONTEXT;
 
         this.init();
     }
@@ -112,9 +112,8 @@ class VectorFieldUI {
 
         if (this.renderingContextName == '2d') {
             this.renderer = new VectorField2dRenderer(this);
-            if (this.$particlesCanvas) {
-                this.particleRenderer = new Particle2dRenderer(this.$particlesCanvas.get(0).getContext('2d'));
-            }
+        } else if (this.renderingContextName == '3d') {
+            this.renderer = new VectorField3dRenderer(this);
         }
     }
 

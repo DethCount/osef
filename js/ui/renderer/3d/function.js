@@ -12,8 +12,7 @@ class Function3dRenderer {
         }
         */
 
-        this.space = this.funUI.space.clone();
-        this.space.parent = new NormalizedSpace();
+        console.log(this.funUI.space)
     }
 
     clear(context) {
@@ -30,37 +29,34 @@ class Function3dRenderer {
         this.clear(context);
 
         if (!this.lineProgram) {
-            this.lineProgram = new WebGLProgramLine(this.ctxt, this.funUI.color);
+            this.lineProgram = new Math3dProgramLine(this.ctxt, this.funUI.color);
         }
 
         let vertices = [];
 
         context = context || {};
-        this.space.getAxisByName('x').each((x) => {
+        this.funUI.space.getAxisByName('x').each((x) => {
             context.x = x;
 
             let val = this.funUI.fun.evaluate(context);
+
             if (isNaN(val)) {
                 return;
             }
 
-            let vector = this.space.applyTransformation(
-                this.space.mergeContextAndVector(
+            let vector = this.funUI.space.applyTransformation(
+                this.funUI.space.mergeContextAndVector(
                     context,
                     new Vector2(x, val)
                 )
             );
-            // console.log('fun v', x, val, vector.clone());
+            //console.log('fun v', x, val, vector.clone());
 
             if (vector.isNaV()) {
                 return;
             }
 
-
-            vertices.push(
-                vector.x, 
-                vector.y
-            );
+            vertices.push(vector.x, vector.y);
         });
 
         if (vertices.length > 0) {
@@ -75,7 +71,7 @@ class Function3dRenderer {
         console.log('renderSegment', p1, p2);
 
         if (!this.lineProgram) {
-            this.lineProgram = new WebGLProgramLine(this.ctxt, this.funUI.color);
+            this.lineProgram = new Math3dProgramLine(this.ctxt, this.funUI.color);
         }
 
         this.lineProgram.draw(new Float32Array([p1.x, p1.y, p2.x, p2.y]));
@@ -92,24 +88,23 @@ class Function3dRenderer {
     }
 
     renderPoint(x, y) {
-        console.warn(' todo renderPoint', x, y);
-        return this;
+        console.log('renderPoint', x, y);
         if (!this.lineProgram) {
-            this.lineProgram = new WebGLProgramLine(this.ctxt, this.funUI.color);
+            this.lineProgram = new Math3dProgramLine(this.ctxt, this.funUI.color);
         }
 
         let margin = Math.round(this.funUI.pointWidth / 2);
-        let mulx = 2 * (1 / this.ctxt.canvas.width);
-        let muly = 2 * (1 / this.ctxt.canvas.height);
+        let xml = x - margin, xmt = x + margin;
+        let yml = y - margin, ymt = y + margin;
 
         let triangles = [
-            (x + margin) * mulx - 1, (y + margin) * muly - 1,
-            (x + margin) * mulx - 1, (y - margin) * muly - 1,
-            (x - margin) * mulx - 1, (y - margin) * muly - 1,
+            xmt, ymt,
+            xmt, yml,
+            xml, yml,
 
-            (x - margin) * mulx - 1, (y - margin) * muly - 1,
-            (x - margin) * mulx - 1, (y + margin) * muly - 1,
-            (x + margin) * mulx - 1, (y + margin) * muly - 1
+            xml, yml,
+            xml, ymt,
+            xmt, ymt
         ];
 
         this.lineProgram.draw(new Float32Array(triangles), this.ctxt.TRIANGLES);

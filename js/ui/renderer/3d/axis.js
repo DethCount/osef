@@ -3,7 +3,7 @@ class Axis3dRenderer {
         this.axisUI = axisUI;
         this.ctxt = ctxt;
 
-        this.program = new WebGLProgramLine(this.ctxt, this.axisUI.axis.color);
+        this.program = new Math3dProgramLine(this.ctxt, this.axisUI.axis.color);
     }
 
     render(context) {
@@ -30,10 +30,7 @@ class Axis3dRenderer {
                 return;
             }
 
-            vertices.push(
-                (vector.x / (0.5 * this.ctxt.canvas.width)) - 1, 
-                (vector.y / (0.5 * this.ctxt.canvas.height)) - 1
-            );
+            vertices.push(vector.x, vector.y);
 
             let vector2 = this.axisUI.space.applyTransformation(
                 this.axisUI.space.mergeContextAndVector(
@@ -46,10 +43,8 @@ class Axis3dRenderer {
             );
 
             markers.push(
-                (vector.x / (0.5 * this.ctxt.canvas.width)) - 1, 
-                (vector.y / (0.5 * this.ctxt.canvas.height)) - 1,
-                (vector2.x / (0.5 * this.ctxt.canvas.width)) - 1, 
-                (vector2.y / (0.5 * this.ctxt.canvas.height)) - 1
+                vector.x, vector.y,
+                vector2.x, vector2.y
             );
         });
 

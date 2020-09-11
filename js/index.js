@@ -4,7 +4,7 @@ $(() => {
             .attr('width', $canvasContainer.innerWidth())
             .attr('height', $canvasContainer.innerHeight()),
         canvas = $canvas.get(0),
-        spaceColor = randomColor(),
+        spaceColor = 'rgba(0, 0, 0, 1)',
         canvasSpace = new CanvasSpace(canvas);
 
     let minX = -10,
@@ -82,12 +82,12 @@ $(() => {
         )
     );
 
-    let objects = [
-        new MathFunction('y0', '{x} + 1'),/*
+    let objects = [/*
+        new MathFunction('y0', '{x} + 1'),
         new MathFunction('y0', '{time}'),
         new MathFunction('y0', 'cos(({x}/({time}%10))*PI)'),
-        new MathFunction('y0', 'sin(2 * PI * {x} + {time})'),*/
-        new MathFunction('y1', 'pow({x}, 2) + pow({y}, 2)'),/*
+        new MathFunction('y0', 'sin(2 * PI * {x} + {time})'),
+        new MathFunction('y1', 'pow({x}, 2) + pow({y}, 2)'),
         new MathFunction('y2', 'pow(cos({time} * {y}), 2) - pow(sin({time} * {x}), 2)'),
         new Serie('s0', '{prev}+1', 'time', workSpace.axes[2], 1),
         new Serie('s0', 'sin({x}*{y}+{prev})', 'time', workSpace.axes[2], 1),

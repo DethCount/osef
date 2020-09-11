@@ -1,16 +1,16 @@
 class Particle2dRenderer {
-	constructor(ctxt) {
-		this.ctxt = ctxt;
-	}
+    constructor(ctxt) {
+        this.ctxt = ctxt;
+    }
 
-	clear() {
+    clear() {
         this.ctxt.clearRect(
             0,
             0,
             this.ctxt.canvas.width,
             this.ctxt.canvas.height
         );
-	}
+    }
 
     render(particle, space, context) {
         let margin = particle.size.divide(2).round();

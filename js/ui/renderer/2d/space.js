@@ -8,10 +8,9 @@ class Space2dRenderer {
         this.ctxt.clearRect(0, 0, this.ctxt.canvas.width, this.ctxt.canvas.height);
 
         if (recursive !== false) {
-            this.spaceUI.$canvasContainer.children().each((idx, elt) => {
-                var canvas = $(elt).get(0);
-                var ctxt = canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            });
+            for (var oid in this.spaceUI.objectsUI) {
+                this.spaceUI.objectsUI[oid].clear();
+            }
         }
     }
 
@@ -34,6 +33,7 @@ class Space2dRenderer {
         );
 
         this.renderBoundaries(context, this.spaceUI.color);
+        
         for (var component in this.spaceUI.axesUI) {
             if (component == 'time') continue;
             this.spaceUI.axesUI[component].render(this.ctxt, context);

@@ -25,7 +25,7 @@ class Function2dRenderer {
 
     render(context, prevContext) {
         if (undefined === context) {
-            this.space.each((context) => {
+            this.funUI.space.each((context) => {
                 this.render(context, prevContext);
                 prevContext = $.extend({}, context);
             });
@@ -43,7 +43,7 @@ class Function2dRenderer {
         }
 
         if (this.funUI.isVectorField()) {
-            this.renderer.renderVector(context);
+            this.renderVector(context);
 
             return this;
         }

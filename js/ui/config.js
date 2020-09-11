@@ -1,0 +1,1 @@
+const DEFAULT_RENDERING_CONTEXT = '3d';
