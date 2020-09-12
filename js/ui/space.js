@@ -248,7 +248,7 @@ class SpaceUI {
                 'v' + oid,
                 [
                     new MathFunction('x', '{x} + {y}'),
-                    new MathFunction('x', '{x} * {y}')
+                    new MathFunction('y', '{x} * {y}')
                 ]
             );
         }
@@ -264,8 +264,6 @@ class SpaceUI {
             .attr('width', this.$canvasContainer.innerWidth())
             .attr('height', this.$canvasContainer.innerHeight())
             .appendTo(this.$canvasContainer);
-
-        console.log('before adding vf ui');
 
         this.objectsUI[oid] = new VectorFieldUI(
             oid,
@@ -287,9 +285,6 @@ class SpaceUI {
             $particlesCanvas,
             color
         );
-
-
-        console.log('after adding vf ui');
     }
 
     addMatrixFieldUI(oid) {
@@ -511,10 +506,6 @@ class SpaceUI {
             let val = this.objects[oid] instanceof Pulse
                 ? this.objects[oid].evaluate(this.space, context)
                 : this.objects[oid].evaluate(context);
-
-            if (undefined == this.objectsUI[oid]) {
-                console.log(oid, this.objects[oid], this.objectsUI);
-            }
 
             if (this.objectsUI[oid].viewState == 'hidden'
                 || val === undefined

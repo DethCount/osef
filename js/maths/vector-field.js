@@ -27,12 +27,12 @@ class VectorField {
         }
 
         return new (this.constructor)(
-            this.name, 
-            this.components, 
-            this.color, 
-            this.particles, 
-            this.normalize, 
-            this.arrowAngle, 
+            this.name,
+            this.components,
+            this.color,
+            this.particles,
+            this.normalize,
+            this.arrowAngle,
             this.arrowHeight,
             this.lineWidth
         );

@@ -23,7 +23,7 @@ class VectorField3dRenderer {
 
     render(context, prevContext, withParticles) {
         let vector = this.vfUI.vf.evaluate(context);
-        // console.log('render', context, vector);
+        // console.log(this.constructor.name, 'render', this.vfUI.vf, context, vector);
 
         if (vector instanceof Vector2 && (vector.isNaV() || (vector.x == 0 && vector.y == 0))) {
             return this;
@@ -139,7 +139,7 @@ class VectorField3dRenderer {
     }
 
     renderParticle(particle, context) {
-        console.log('renderParticle', particle, context);
+        // console.log('renderParticle', particle, context);
         this.particleRenderer.render(particle, this.vfUI.space, context);
     }
 }
