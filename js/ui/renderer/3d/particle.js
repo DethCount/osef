@@ -15,7 +15,7 @@ class Particle3dRenderer {
 
         //let margin = particle.size.divide(2).round();
         let m = Math.max(space.getAxisByName('x').stepLength(), space.getAxisByName('y').stepLength());
-        m /= 10;
+        m /= 25;
         let margin = new Vector2(m, m);
 
         // console.log(margin);

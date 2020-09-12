@@ -41,23 +41,28 @@ class Space3dRenderer {
 
     render(context, animate, animationComponent) {
         this.clear();
+        this.spaceUI.resize(true, false);
 
         context = $.extend(this.spaceUI.getStartContext(), this.spaceUI.currentContext || {}, context || {});
 
         let prevContext;
 
-        for (var oid in this.spaceUI.objectsUI) {
-            if (this.spaceUI.objectsUI[oid] instanceof FunctionUI) {
-                this.spaceUI.objectsUI[oid].render(context);
-            }
-        }
+        this.spaceUI.space.each(
+            (context) => {
+                for (var oid in this.spaceUI.objectsUI) {
+                    this.spaceUI.objectsUI[oid].render(context, prevContext, false);
+                }
+                prevContext = $.extend({}, context);
+            },
+            context
+        );
+
+        this.renderBoundaries(context, this.spaceUI.color);
 
         for (var component in this.spaceUI.axesUI) {
             if (component == 'time') continue;
             this.spaceUI.axesUI[component].render(this.ctxt, context);
         }
-
-        this.renderBoundaries(context);
     }
 
     renderBoundaries(context) {

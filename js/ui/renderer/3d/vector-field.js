@@ -22,7 +22,7 @@ class VectorField3dRenderer {
     }
 
     render(context, prevContext, withParticles) {
-        let vector = this.vfUI.vf.evaluate(context);
+        let vector = this.vfUI.vf.evaluate(context, true);
         // console.log(this.constructor.name, 'render', this.vfUI.vf, context, vector);
 
         if (vector instanceof Vector2 && (vector.isNaV() || (vector.x == 0 && vector.y == 0))) {
@@ -37,69 +37,89 @@ class VectorField3dRenderer {
             vector = vector.normalize();
         }
 
-        let point = new Vector2(context.x, context.y);
-        let point1 = this.vfUI.space.applyTransformation(this.vfUI.space.mergeContextAndVector(context, point));
-        let point2 = this.vfUI.space.applyTransformation(this.vfUI.space.mergeContextAndVector(context, point.add(vector)));
-        let vector2 = this.vfUI.space.applyTransformation(this.vfUI.space.mergeContextAndVector(context, vector));
-        let vertices = [];
+        let tail = new Vector2(context.x, context.y);
+        let head = tail.add(vector);
+
+        let finalTail = this.vfUI.space.applyTransformation(
+            this.vfUI.space.mergeContextAndVector(context, tail)
+        );
+        let finalHead = this.vfUI.space.applyTransformation(
+            this.vfUI.space.mergeContextAndVector(context, head)
+        );
 
         if (!(
-            point.isNaV()
-            || point1.isNaV()
-            || point2.isNaV()
-            || vector2.isNaV()
+            tail.isNaV()
+            || head.isNaV()
+            || finalTail.isNaV()
+            || finalHead.isNaV()
         )) {
-            vertices.push(
-                point1.x, point1.y,
-                point2.x, point2.y
-            );
+            let vertices = [
+                finalTail.x, finalTail.y,
+                finalHead.x, finalHead.y
+            ];
 
             let l = vector.length();
 
             let cosTheta = Math.cos(this.vfUI.arrowAngle),
                 sinTheta = Math.sin(this.vfUI.arrowAngle);
 
-            let vector3 = this.vfUI.space.applyTransformation(
+            let finalWing1 = this.vfUI.space.applyTransformation(
                 this.vfUI.space.mergeContextAndVector(
                     context,
-                    point
-                        .add(vector)
-                        .sub(
-                            (new Matrix2(new Vector2(cosTheta, sinTheta), new Vector2(-sinTheta, cosTheta)))
-                                .multiply(vector)
-                                .multiply(this.vfUI.arrowHeight)
-                        )
+                    head.sub(
+                        (new Matrix2(
+                            new Vector2(cosTheta, sinTheta),
+                            new Vector2(-sinTheta, cosTheta)
+                        ))
+                            .multiply(vector)
+                            .multiply(this.vfUI.arrowHeight)
+                    )
                 )
             );
 
-            vertices.push(
-                point2.x, point2.y,
-                vector3.x, vector3.y
-            );
+            if (!finalWing1.isNaV()) {
+                vertices.push(
+                    finalHead.x, finalHead.y,
+                    finalWing1.x, finalWing1.y
+                );
+            }
 
-            let vector4 = this.vfUI.space.applyTransformation(
+            let finalWing2 = this.vfUI.space.applyTransformation(
                 this.vfUI.space.mergeContextAndVector(
                     context,
-                    point
-                        .add(vector)
-                        .sub(
-                            (new Matrix2(new Vector2(cosTheta, -sinTheta), new Vector2(sinTheta, cosTheta)))
-                                .multiply(vector)
-                                .multiply(this.vfUI.arrowHeight)
-                        )
+                    head.sub(
+                        (new Matrix2(
+                            new Vector2(cosTheta, -sinTheta),
+                            new Vector2(sinTheta, cosTheta)
+                        ))
+                            .multiply(vector)
+                            .multiply(this.vfUI.arrowHeight)
+                    )
                 )
             );
 
-            vertices.push(
-                point2.x, point2.y,
-                vector4.x, vector4.y
-            );
+            if (!finalWing2.isNaV()) {
+                vertices.push(
+                    finalHead.x, finalHead.y,
+                    finalWing2.x, finalWing2.y
+                );
+            }
 
             // console.log('draw vectors', vertices);
-            this.program.draw(undefined, new Float32Array(vertices), undefined, this.ctxt.LINES);
+            this.program.draw(
+                undefined,
+                new Float32Array(vertices),
+                undefined,
+                this.ctxt.LINES
+            );
         }
 
-        if (withParticles !== false && (this.vfUI.viewState == 'visible' || this.vfUI.viewState == 'points') && this.particleRenderer != undefined) {
+        if (withParticles !== false
+            && (this.vfUI.viewState == 'visible'
+                || this.vfUI.viewState == 'points'
+            )
+            && this.particleRenderer != undefined
+        ) {
             this.renderParticles(context);
         }
 

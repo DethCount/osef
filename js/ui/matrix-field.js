@@ -268,6 +268,7 @@ class MatrixFieldUI {
     }
 
     render(context, prevContext, withParticles) {
+        // console.log(this.constructor.name, 'render', context, prevContext, withParticles);
         if (this.viewState == 'hidden') {
             this.clear();
             return this;
