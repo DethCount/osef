@@ -11,9 +11,30 @@ class Particle3dRenderer {
     }
 
     render(particle, space, context) {
-        let margin = particle.size.divide(2).round();
-        let pos = space.applyTransformation(space.mergeContextAndVector(context, particle.pos));
-        if (pos.isNaV()) {
+        // console.log('Particle3dRenderer:render', particle, space, context);
+
+        //let margin = particle.size.divide(2).round();
+        let m = Math.max(space.getAxisByName('x').stepLength(), space.getAxisByName('y').stepLength());
+        m /= 10;
+        let margin = new Vector2(m, m);
+
+        // console.log(margin);
+
+        let bl = space.applyTransformation(
+            space.mergeContextAndVector(
+                context,
+                particle.pos.sub(margin)
+            )
+        );
+
+        let tr = space.applyTransformation(
+            space.mergeContextAndVector(
+                context,
+                particle.pos.add(margin)
+            )
+        );
+
+        if (bl.isNaV() || tr.isNaV()) {
             particle.reset();
             return this;
         }
@@ -22,24 +43,23 @@ class Particle3dRenderer {
             this.program = new Math3dProgramTriangles(this.ctxt);
         }
 
-        let xml = pos.x - margin, xmt = pos.x + margin;
-        let yml = pos.y - margin, ymt = pos.y + margin;
+        // console.log('Particle3dRenderer:render', margin, bl, tr);
 
         let triangles = [
-            xmt, ymt,
-            xmt, yml,
-            xml, yml,
+            tr.x, tr.y,
+            tr.x, bl.y,
+            bl.x, bl.y,
 
-            xml, yml,
-            xml, ymt,
-            xmt, ymt
+            bl.x, bl.y,
+            bl.x, tr.y,
+            tr.x, tr.y
         ];
 
-        console.log(particle);
+        // console.log(triangles);
 
         this.program.draw(
             particle.color,
-            triangles,
+            new Float32Array(triangles),
             undefined
         );
 

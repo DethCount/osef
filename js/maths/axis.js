@@ -18,4 +18,8 @@ class Axis extends MathRange {
     isOutside(val) {
         return val < this.min || val > this.max;
     }
+
+    stepLength() {
+        return this.length() / this.steps;
+    }
 }

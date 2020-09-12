@@ -1,8 +1,8 @@
 class Math3dProgram {
-    constructor(ctxt, vertexDimension, vertexNormalized, vertexStride, vertexOffset, drawMode, drawOffset, initialised) {
-
+    constructor(ctxt, vertexDimension, nbVerticesPerItem, vertexNormalized, vertexStride, vertexOffset, drawMode, drawOffset, initialised) {
         this.ctxt = ctxt;
         this.vertexDimension = vertexDimension || 2;
+        this.nbVerticesPerItem = nbVerticesPerItem || 1;
         this.vertexNormalized = vertexNormalized === true;
         this.vertexStride = vertexStride || 0;
         this.vertexOffset = vertexOffset || 0;
@@ -88,9 +88,7 @@ void main () {
     `;
     }
 
-    // crude traduction from js rgba to vec4
     getFragmentShaderSource() {
-        // console.log(this.color, color2webgl(this.color));
         return `
 precision highp float;
 
@@ -111,7 +109,14 @@ void main () {
             this.ctxt.STATIC_DRAW
         );
         this.ctxt.enableVertexAttribArray(positionLocation);
-        this.ctxt.vertexAttribPointer(positionLocation, this.vertexDimension, this.ctxt.FLOAT, this.vertexNormalized, this.vertexStride, this.vertexOffset);
+        this.ctxt.vertexAttribPointer(
+            positionLocation,
+            this.vertexDimension,
+            this.ctxt.FLOAT,
+            this.vertexNormalized,
+            this.vertexStride,
+            this.vertexOffset
+        );
     }
 
     initUniforms(uniforms) {
@@ -138,10 +143,17 @@ void main () {
 
         this.initDraw(uniforms, attributes, varyings, mode);
 
+        this.doDraw(uniforms, attributes, varyings, mode);
+    }
+
+    doDraw(uniforms, attributes, varyings, mode) {
         this.ctxt.drawArrays(
             undefined !== mode ? mode : this.drawMode,
             this.drawOffset,
-            Math.ceil(attributes.length / this.vertexDimension)
+            Math.ceil(
+                attributes.length /
+                (this.vertexDimension * this.nbVerticesPerItem)
+            )
         );
     }
 }

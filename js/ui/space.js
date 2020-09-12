@@ -265,6 +265,8 @@ class SpaceUI {
             .attr('height', this.$canvasContainer.innerHeight())
             .appendTo(this.$canvasContainer);
 
+        console.log('before adding vf ui');
+
         this.objectsUI[oid] = new VectorFieldUI(
             oid,
             this.space,
@@ -285,6 +287,9 @@ class SpaceUI {
             $particlesCanvas,
             color
         );
+
+
+        console.log('after adding vf ui');
     }
 
     addMatrixFieldUI(oid) {
@@ -374,7 +379,9 @@ class SpaceUI {
             });
         }
 
-        this.space.parent.resize();
+        if (this.space.parent instanceof SpaceUI && this.space.parent.resize) {
+            this.space.parent.resize();
+        }
 
         if (render !== false) {
             if (this.resizeAnimationFrame) {
@@ -505,11 +512,15 @@ class SpaceUI {
                 ? this.objects[oid].evaluate(this.space, context)
                 : this.objects[oid].evaluate(context);
 
-            if (this.objectsUI[oid].viewState == 'hidden' 
-                || val === undefined 
-                || (val instanceof Vector2 
-                    ? val.isNaV() 
-                    : (val instanceof Matrix2 
+            if (undefined == this.objectsUI[oid]) {
+                console.log(oid, this.objects[oid], this.objectsUI);
+            }
+
+            if (this.objectsUI[oid].viewState == 'hidden'
+                || val === undefined
+                || (val instanceof Vector2
+                    ? val.isNaV()
+                    : (val instanceof Matrix2
                         ? val.isNaM()
                         : isNaN(val)
                     )

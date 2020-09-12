@@ -1,6 +1,6 @@
 class Math3dProgramLine extends Math3dProgram {
-    constructor(ctxt, color, vertexDimension, vertexNormalized, vertexStride, vertexOffset, drawMode, drawOffset, initialised) {
-        super(ctxt, vertexDimension, vertexNormalized, vertexStride, vertexOffset, drawMode, drawOffset, initialised);
+    constructor(ctxt, color, vertexDimension, nbVerticesPerItem, vertexNormalized, vertexStride, vertexOffset, drawMode, drawOffset, initialised) {
+        super(ctxt, vertexDimension, nbVerticesPerItem, vertexNormalized, vertexStride, vertexOffset, drawMode, drawOffset, initialised);
 
         this.color = color;
     }
@@ -23,9 +23,8 @@ class Math3dProgramLine extends Math3dProgram {
 
     // crude traduction from js rgba to vec4
     getFragmentShaderSource() {
-        console.log(this.color);
         let color = color2webgl(this.color);
-        console.log(this.color, color);
+        //console.log(this.color, color);
         return `
 precision highp float;
 

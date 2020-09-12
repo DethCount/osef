@@ -198,7 +198,7 @@ class MatrixFieldUI {
 
     onUpdateBtnClick(event) {
         this.update(false);
-        
+
         this.$elt.trigger('update');
     }
 

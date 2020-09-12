@@ -164,8 +164,6 @@ class VectorFieldUI {
             .toggleClass('fa-bullseye', this.viewState == 'points')
             .toggleClass('fa-eye-slash', this.viewState == 'hidden');
 
-        this.$particlesCanvas.toggle(this.viewState == 'visible' || this.viewState == 'points');
-
         this.render();
     }
 
@@ -249,6 +247,7 @@ class VectorFieldUI {
     }
 
     render(context, prevContext, withParticles) {
+        console.log(this.constructor.name, 'render', context, prevContext, withParticles);
         if (this.viewState == 'hidden') {
             this.clear();
             return this;
