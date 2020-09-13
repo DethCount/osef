@@ -56,8 +56,8 @@ $(() => {
             ],
             spaceColor
         )
-        */
-
+        //*/
+        ///*
         new MatrixField(
             'm0',
             [
@@ -80,9 +80,10 @@ $(() => {
             ],
             spaceColor
         )
+        //*/
     );
 
-    let objects = [/*
+    let objects = [
         new MathFunction('y0', '{x} + 1'),
         new MathFunction('y0', '{time}'),
         new MathFunction('y0', 'cos(({x}/({time}%10))*PI)'),
@@ -104,7 +105,7 @@ $(() => {
                 new MathFunction('x', 'cos({x})*-sin({y})'),
                 new MathFunction('y', '-sin({y}) * cos({x})')
             ]
-        )*/
+        )
     ];
 
     var workSpaceUI = new SpaceUI(

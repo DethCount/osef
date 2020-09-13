@@ -39,6 +39,8 @@ class SpaceNavigationUI {
     }
 
     onAddAxisClick(event) {
+        $('.nav-tabs .nav-link.data-tab').click();
+
         this.spaceUI.addAxisUI();
     }
 
